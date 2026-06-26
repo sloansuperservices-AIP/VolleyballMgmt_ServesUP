@@ -1,0 +1,3 @@
+## 2026-06-26 - Enhancing Custom Interactive Elements for Accessibility
+**Learning:** Custom interactive elements built with `div` or `span` (like the `.app-card` and `.qbtn` in this hub) require manual accessibility wiring. Simply adding `role="button"` and `tabindex="0"` is not enough; one must also implement `keydown` listeners for `Enter` and `Space` to match expected button behavior. Additionally, visual feedback like ripples should be centered when triggered via keyboard to ensure the interaction feels intentional and polished.
+**Action:** Always pair `role="button"` and `tabindex="0"` with a keyboard event handler that triggers the click action, and ensure any coordinate-based animations (like ripples) have a fallback "center" state for keyboard users.
