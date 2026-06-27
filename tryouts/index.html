@@ -601,7 +601,8 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
 function EmailModal({athlete,team,onClose,onSend}){
   const tpl=`Hello,\n\nWe are pleased to offer ${athlete?.first||""} ${athlete?.last||""} a roster spot on Mid TN VBC${team?` — ${team}`:""} for the 2026-2027 season.\n\nDetails on cost, schedule, and coaching staff are available at www.midtnvbc.com/clubtryouts.\n\nPlease reply with one of the following:\n  1. Accept\n  2. Request a call to discuss\n  3. Decline\n\nThank you!\nMid TN VBC Administration`;
   const [body,setBody]=useState(tpl);
-  useEffect(()=>{if(athlete)setBody(tpl);},[athlete?.id]);
+  const [copied,setCopied]=useState(false);
+  useEffect(()=>{if(athlete){setBody(tpl);setCopied(false);}},[athlete?.id]);
   if(!athlete) return null;
   return(
     <div onClick={onClose} style={{position:"fixed",inset:0,background:"#000b",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
