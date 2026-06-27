@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mid TN Volleyball — Management Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #080c14;
+    --surface:   #0e1422;
+    --surface2:  #141a2e;
+    --border:    rgba(255,255,255,0.07);
+    --accent:    #f0a500;
+    --accent2:   #e05c1a;
+    --blue:      #2a7de1;
+    --green:     #1db86e;
+    --purple:    #7c3aed;
+    --teal:      #0ea5a0;
+    --red:       #e0431a;
+    --text:      #f0f2f8;
+    --muted:     #6b7590;
+    --font-d:    'Barlow Condensed', sans-serif;
+    --font-b:    'DM Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-b);
+    min-height: 100vh;
+  }
+
+  /* Background grid texture */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(240,165,0,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(240,165,0,0.025) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none; z-index: 0;
+  }
+
+  /* Top accent line */
+  body::after {
+    content: '';
+    position: fixed; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent), var(--blue));
+    z-index: 999;
+  }
+
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: 1280px; margin: 0 auto;
+    padding: 0 28px 80px;
+  }
+
+  /* ──────────────────── HEADER ──────────────────── */
+  header {
+    display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    padding: 32px 0 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 36px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 16px; }
+
+  .logo-mark {
+    width: 56px; height: 56px; border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent2) 0%, var(--accent) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; flex-shrink: 0;
+    box-shadow: 0 0 32px rgba(240,165,0,0.25);
+  }
+
+  .logo-words .name {
+    font-family: var(--font-d); font-size: 30px; font-weight: 900;
+    letter-spacing: 1.5px; color: var(--text); line-height: 1;
+  }
+  .logo-words .tagline {
+    font-size: 11px; font-weight: 500; color: var(--muted);
+    letter-spacing: 2px; text-transform: uppercase; margin-top: 4px;
+  }
+
+  .header-right { display: flex; align-items: center; gap: 16px; }
+
+  .badge-live {
+    display: flex; align-items: center; gap: 7px;
+    background: rgba(29,184,110,0.12); border: 1px solid rgba(29,184,110,0.3);
+    border-radius: 24px; padding: 6px 14px;
+    font-size: 10px; font-weight: 700; color: var(--green);
+    letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  .dot-pulse {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green); flex-shrink: 0;
+    animation: dpulse 2s ease-in-out infinite;
+  }
+  @keyframes dpulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.65)} }
+
+  .clock-block { text-align: right; }
+  .clock-block .time { font-family: var(--font-d); font-size: 20px; font-weight: 700; line-height: 1; }
+  .clock-block .date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ──────────────────── SEASON BANNER ──────────────────── */
+  .season-strip {
+    background: linear-gradient(135deg, rgba(240,165,0,0.07) 0%, rgba(224,92,26,0.04) 100%);
+    border: 1px solid rgba(240,165,0,0.18);
+    border-radius: 18px;
+    padding: 24px 32px;
+    display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .ss-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+  .ss-title { font-family: var(--font-d); font-size: 26px; font-weight: 800; line-height: 1; }
+
+  .ss-stats { display: flex; gap: 0; }
+  .ss-stat {
+    padding: 0 28px; text-align: center;
+    border-right: 1px solid rgba(240,165,0,0.15);
+  }
+  .ss-stat:first-child { padding-left: 0; }
+  .ss-stat:last-child { border-right: none; }
+  .ss-stat .n { font-family: var(--font-d); font-size: 32px; font-weight: 900; color: var(--accent); line-height: 1; }
+  .ss-stat .l { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+
+  .ss-btn {
+    background: var(--accent); color: #000; border: none;
+    border-radius: 12px; padding: 12px 24px; cursor: pointer;
+    font-family: var(--font-d); font-size: 15px; font-weight: 800;
+    letter-spacing: 1px; text-transform: uppercase;
+    transition: all .2s;
+  }
+  .ss-btn:hover { background: #ffba10; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(240,165,0,.3); }
+
+  /* ──────────────────── KPIS ──────────────────── */
+  .kpi-row {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 16px;
+    margin-bottom: 44px;
+  }
+
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px 22px;
+    position: relative; overflow: hidden;
+    transition: border-color .2s, transform .2s;
+    animation: fadeUp .4s ease both;
+  }
+  .kpi:hover { border-color: rgba(255,255,255,0.14); transform: translateY(-2px); }
+  .kpi::after {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: var(--kc, var(--accent)); opacity: .8;
+  }
+  .kpi-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .kpi-val { font-family: var(--font-d); font-size: 36px; font-weight: 900; line-height: 1; }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 5px; }
+  .kpi-sub em { font-style: normal; color: var(--green); font-weight: 600; }
+
+  /* ──────────────────── SECTION LABEL ──────────────────── */
+  .sec-lbl {
+    font-size: 10px; font-weight: 700; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--muted);
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 18px;
+  }
+  .sec-lbl::after { content:''; flex:1; height:1px; background: var(--border); }
+
+  /* ──────────────────── APP GRID ──────────────────── */
+  .app-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  /* Card sizes */
+  .col-8  { grid-column: span 8; }
+  .col-4  { grid-column: span 4; }
+  .col-6  { grid-column: span 6; }
+  .col-12 { grid-column: span 12; }
+
+  .app-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 30px;
+    cursor: pointer; position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: all .28s cubic-bezier(.34,1.56,.64,1);
+    animation: fadeUp .5s ease both;
+    text-decoration: none;
+  }
+
+  .app-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 15% 15%, var(--cg, rgba(240,165,0,0.07)), transparent 55%);
+    opacity: 0; transition: opacity .3s;
+  }
+  .app-card:hover { transform: translateY(-5px) scale(1.01); border-color: rgba(255,255,255,0.14); box-shadow: 0 24px 64px rgba(0,0,0,.55); }
+  .app-card:hover::before { opacity: 1; }
+  .app-card:active { transform: translateY(-1px) scale(.99); }
+
+  /* Large horizontal card */
+  .app-card.wide {
+    flex-direction: row; align-items: center; gap: 36px;
+  }
+  .wide .card-icon { margin-bottom: 0; width: 80px; height: 80px; font-size: 38px; border-radius: 22px; }
+
+  .card-icon {
+    width: 62px; height: 62px; border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; flex-shrink: 0; margin-bottom: 20px;
+    background: var(--ci-bg, rgba(240,165,0,0.1));
+    border: 1px solid var(--ci-bd, rgba(240,165,0,0.2));
+    transition: transform .22s;
+  }
+  .app-card:hover .card-icon { transform: scale(1.12) rotate(-4deg); }
+
+  .card-body { flex: 1; display: flex; flex-direction: column; }
+
+  .card-tag {
+    display: inline-flex; align-items: center;
+    font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 20px; margin-bottom: 10px;
+    background: var(--ct-bg, rgba(240,165,0,0.1));
+    color: var(--ct-c, var(--accent));
+    border: 1px solid var(--ct-bd, rgba(240,165,0,0.2));
+    width: fit-content;
+  }
+
+  .card-title {
+    font-family: var(--font-d); font-size: 28px; font-weight: 900; letter-spacing: .5px;
+    line-height: 1.1; color: var(--text); margin-bottom: 9px;
+  }
+  .wide .card-title { font-size: 36px; }
+
+  .card-desc {
+    font-size: 13px; color: var(--muted); line-height: 1.65;
+    margin-bottom: 22px; flex: 1;
+  }
+  .wide .card-desc { font-size: 14px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 22px; }
+  .chip {
+    font-size: 10px; font-weight: 500; color: rgba(255,255,255,.5);
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 6px; padding: 3px 9px;
+  }
+
+  .card-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 18px; border-top: 1px solid var(--border);
+    margin-top: auto;
+  }
+
+  .cstatus {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11px; font-weight: 600;
+    color: var(--cs-c, var(--muted));
+  }
+  .cstatus .d { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink:0; }
+
+  .arrow-btn {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: rgba(255,255,255,.05); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--muted);
+    transition: all .2s;
+  }
+  .app-card:hover .arrow-btn {
+    background: var(--ab-bg, rgba(240,165,0,.15));
+    border-color: var(--ab-bd, rgba(240,165,0,.3));
+    color: var(--accent); transform: translateX(4px);
+  }
+
+  .app-card:focus-visible, .qbtn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-color: var(--accent);
+  }
+
+  /* ──────────────────── QUICK ACCESS ──────────────────── */
+  .quick-grid {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 14px; margin-bottom: 44px;
+  }
+
+  .qbtn {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 18px;
+    cursor: pointer; display: flex; align-items: center; gap: 12px;
+    transition: all .2s;
+  }
+  .qbtn:hover { border-color: rgba(255,255,255,.14); transform: translateY(-2px); background: var(--surface2); }
+  .qi { font-size: 20px; flex-shrink: 0; }
+  .ql { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.35; }
+  .qs { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+  /* ──────────────────── FUTURE DEPTS ──────────────────── */
+  .future-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .future-card {
+    background: var(--surface); border: 1px dashed rgba(255,255,255,0.1);
+    border-radius: 14px; padding: 20px 22px;
+    display: flex; align-items: center; gap: 14px;
+    opacity: 0.7; cursor: default;
+    transition: opacity .2s;
+  }
+  .future-card:hover { opacity: 0.9; }
+  .fi { font-size: 22px; flex-shrink: 0; }
+  .ft { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .fd { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .soon-badge {
+    margin-left: auto; flex-shrink: 0;
+    font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 20px;
+    background: rgba(255,255,255,0.06); color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* ──────────────────── ANIMATIONS ──────────────────── */
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(22px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .kpi:nth-child(1){animation-delay:.04s}
+  .kpi:nth-child(2){animation-delay:.09s}
+  .kpi:nth-child(3){animation-delay:.14s}
+  .kpi:nth-child(4){animation-delay:.19s}
+  .app-card:nth-child(1){animation-delay:.08s}
+  .app-card:nth-child(2){animation-delay:.14s}
+  .app-card:nth-child(3){animation-delay:.2s}
+  .app-card:nth-child(4){animation-delay:.26s}
+  .app-card:nth-child(5){animation-delay:.32s}
+
+  /* ──────────────────── RESPONSIVE ──────────────────── */
+  @media(max-width:1024px){
+    .col-8 { grid-column: span 12; }
+    .col-4 { grid-column: span 6; }
+    .col-6 { grid-column: span 6; }
+    .wide { flex-direction: column; }
+    .wide .card-icon { margin-bottom: 16px; }
+    .kpi-row { grid-template-columns: repeat(2,1fr); }
+  }
+  @media(max-width:700px){
+    .wrap { padding: 0 16px 60px; }
+    .app-grid { grid-template-columns: 1fr; }
+    .col-8,.col-4,.col-6,.col-12 { grid-column: span 1; }
+    .kpi-row { grid-template-columns: repeat(2,1fr); }
+    .quick-grid { grid-template-columns: repeat(2,1fr); }
+    .future-grid { grid-template-columns: 1fr; }
+    .ss-stats { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ── HEADER ───────────────────────────────────── -->
+  <header>
+    <div class="logo">
+      <div class="logo-mark" aria-hidden="true">🏐</div>
+      <div class="logo-words">
+        <div class="name">MID TN VOLLEYBALL</div>
+        <div class="tagline">Club Management Platform &nbsp;·&nbsp; Est. 1995</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="badge-live"><div class="dot-pulse"></div>System Live</div>
+      <div class="clock-block">
+        <div class="time" id="clock">—</div>
+        <div class="date" id="datestr">—</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── SEASON BANNER ─────────────────────────────── -->
+  <div class="season-strip">
+    <div>
+      <div class="ss-label">Active Season</div>
+      <div class="ss-title">2025 – 2026 Club Year</div>
+    </div>
+    <div class="ss-stats">
+      <div class="ss-stat"><div class="n">14</div><div class="l">Teams</div></div>
+      <div class="ss-stat"><div class="n">41</div><div class="l">Coaches</div></div>
+      <div class="ss-stat"><div class="n">180+</div><div class="l">Athletes</div></div>
+      <div class="ss-stat"><div class="n">300+</div><div class="l">Waitlisted</div></div>
+      <div class="ss-stat"><div class="n">30+</div><div class="l">Yrs Active</div></div>
+    </div>
+    <button class="ss-btn">Season Overview →</button>
+  </div>
+
+  <!-- ── KPI ROW ───────────────────────────────────── -->
+  <div class="kpi-row">
+    <div class="kpi" style="--kc:var(--accent)">
+      <div class="kpi-label">Coaches on Payroll</div>
+      <div class="kpi-val">41</div>
+      <div class="kpi-sub">Jan–Jun cycle &nbsp;<em>↑ Active</em></div>
+    </div>
+    <div class="kpi" style="--kc:var(--blue)">
+      <div class="kpi-label">Next Tournament</div>
+      <div class="kpi-val">12<span style="font-size:18px;color:var(--muted);font-weight:400"> days</span></div>
+      <div class="kpi-sub">Upcoming hosted event</div>
+    </div>
+    <div class="kpi" style="--kc:var(--green)">
+      <div class="kpi-label">DIBS Open Shifts</div>
+      <div class="kpi-val">—</div>
+      <div class="kpi-sub">This week's availability</div>
+    </div>
+    <div class="kpi" style="--kc:var(--purple)">
+      <div class="kpi-label">VOLLEY Agent</div>
+      <div class="kpi-val" style="font-size:22px;padding-top:6px;color:var(--green)">● Online</div>
+      <div class="kpi-sub">Front desk &amp; email active</div>
+    </div>
+  </div>
+
+  <!-- ── CORE APPS ─────────────────────────────────── -->
+  <div class="sec-lbl">Core Applications</div>
+
+  <div class="app-grid">
+
+    <!-- TRYOUTS — wide featured -->
+    <a href="tryouts/" class="app-card wide col-8" role="button" tabindex="0" style="--cg:rgba(42,125,225,0.1); --ci-bg:rgba(42,125,225,0.1); --ci-bd:rgba(42,125,225,0.25); --ab-bg:rgba(42,125,225,0.15); --ab-bd:rgba(42,125,225,0.3);">
+      <div class="card-icon" aria-hidden="true">🎯</div>
+      <div class="card-body">
+        <div class="card-tag" style="--ct-bg:rgba(42,125,225,0.1);--ct-c:#5ca8ff;--ct-bd:rgba(42,125,225,0.2)">Season Entry</div>
+        <div class="card-title">Tryouts</div>
+        <div class="card-desc">Manage athlete registration, court-side evaluation scoring, team selection, offer communications, and waitlist management for seasonal tryout events.</div>
+        <div class="chips">
+          <span class="chip">Registration</span>
+          <span class="chip">Evaluations</span>
+          <span class="chip">Team Selection</span>
+          <span class="chip">Offer Letters</span>
+          <span class="chip">Waitlist</span>
+          <span class="chip">Parent Comms</span>
+        </div>
+        <div class="card-foot">
+          <div class="cstatus" style="--cs-c:#5ca8ff"><div class="d"></div>Planning Phase</div>
+          <div class="arrow-btn">→</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VOLLEY AI -->
+    <a href="volley/" class="app-card col-4" role="button" tabindex="0" style="--cg:rgba(124,58,237,0.12); --ci-bg:rgba(124,58,237,0.1); --ci-bd:rgba(124,58,237,0.25); --ab-bg:rgba(124,58,237,0.15); --ab-bd:rgba(124,58,237,0.3);">
+      <div class="card-icon" aria-hidden="true">🤖</div>
+      <div class="card-tag" style="--ct-bg:rgba(124,58,237,0.1);--ct-c:#a78bfa;--ct-bd:rgba(124,58,237,0.2)">AI Powered</div>
+      <div class="card-title">VOLLEY Agent</div>
+      <div class="card-desc">Club AI for front desk inquiries, website chat, and intelligent email triage and response drafting.</div>
+      <div class="chips">
+        <span class="chip">Front Desk</span>
+        <span class="chip">Website</span>
+        <span class="chip">Email</span>
+      </div>
+      <div class="card-foot">
+        <div class="cstatus" style="--cs-c:var(--green)"><div class="d"></div>Online &amp; Listening</div>
+        <div class="arrow-btn">→</div>
+      </div>
+    </div>
+
+    <!-- DIBS -->
+    <a href="dibs/" class="app-card col-6" role="button" tabindex="0" style="--cg:rgba(29,184,110,0.1); --ci-bg:rgba(29,184,110,0.1); --ci-bd:rgba(29,184,110,0.25); --ab-bg:rgba(29,184,110,0.15); --ab-bd:rgba(29,184,110,0.3);">
+      <div class="card-icon" aria-hidden="true">💼</div>
+      <div class="card-tag" style="--ct-bg:rgba(29,184,110,0.1);--ct-c:#4ade80;--ct-bd:rgba(29,184,110,0.2)">Work Program</div>
+      <div class="card-title">DIBS</div>
+      <div class="card-desc">Athlete Work Play Program — track gym maintenance tasks, facility open &amp; close checklists, athlete compensation ledger, and shift scheduling.</div>
+      <div class="chips">
+        <span class="chip">Gym Maintenance</span>
+        <span class="chip">Open / Close</span>
+        <span class="chip">Compensation</span>
+        <span class="chip">Scheduler</span>
+      </div>
+      <div class="card-foot">
+        <div class="cstatus" style="--cs-c:#4ade80"><div class="d"></div>Shifts Available</div>
+        <div class="arrow-btn">→</div>
+      </div>
+    </div>
+
+    <!-- TOURNAMENTS -->
+    <a href="tournaments/" class="app-card col-6" role="button" tabindex="0" style="--cg:rgba(224,92,26,0.1); --ci-bg:rgba(224,92,26,0.1); --ci-bd:rgba(224,92,26,0.25); --ab-bg:rgba(224,92,26,0.15); --ab-bd:rgba(224,92,26,0.3);">
+      <div class="card-icon" aria-hidden="true">🏆</div>
+      <div class="card-tag" style="--ct-bg:rgba(224,92,26,0.1);--ct-c:#ff845a;--ct-bd:rgba(224,92,26,0.2)">Competition</div>
+      <div class="card-title">Tournaments</div>
+      <div class="card-desc">Manage hosted events and team travel — registration, results, hotel bookings, rideshare coordination, and travel message board.</div>
+      <div class="chips">
+        <span class="chip">Hosted Events</span>
+        <span class="chip">Travel Mgmt</span>
+        <span class="chip">Hotels</span>
+        <span class="chip">Rideshares</span>
+        <span class="chip">Results</span>
+      </div>
+      <div class="card-foot">
+        <div class="cstatus" style="--cs-c:#ff845a"><div class="d"></div>Season Active</div>
+        <div class="arrow-btn">→</div>
+      </div>
+    </div>
+
+    <!-- STRATEGIC OBJECTIVES -->
+    <a href="strategic-objectives/" class="app-card wide col-12" role="button" tabindex="0" style="--cg:rgba(14,165,160,0.08); --ci-bg:rgba(14,165,160,0.1); --ci-bd:rgba(14,165,160,0.25); --ab-bg:rgba(14,165,160,0.15); --ab-bd:rgba(14,165,160,0.3);">
+      <div class="card-icon" aria-hidden="true" style="width:72px;height:72px;font-size:34px;border-radius:20px">🗺️</div>
+      <div class="card-body">
+        <div class="card-tag" style="--ct-bg:rgba(14,165,160,0.1);--ct-c:#2dd4d0;--ct-bd:rgba(14,165,160,0.2)">Leadership</div>
+        <div class="card-title">Strategic Objectives</div>
+        <div class="card-desc">Club-wide roles and responsibilities, OKR tracking, staff task assignments, accountability dashboards, and long-term strategic planning tools for leadership and directors.</div>
+        <div class="chips">
+          <span class="chip">Roles &amp; Duties</span>
+          <span class="chip">Task Board</span>
+          <span class="chip">OKRs</span>
+          <span class="chip">Staff Directory</span>
+          <span class="chip">Accountability</span>
+          <span class="chip">Directors View</span>
+        </div>
+        <div class="card-foot">
+          <div class="cstatus" style="--cs-c:#2dd4d0"><div class="d"></div>Q2 Planning Underway</div>
+          <div class="arrow-btn">→</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── QUICK ACCESS ───────────────────────────────── -->
+  <div class="sec-lbl">Quick Access</div>
+  <div class="quick-grid">
+    <div class="qbtn" role="button" tabindex="0"><div class="qi" aria-hidden="true">💰</div><div><div class="ql">Coach Pay</div><div class="qs">Jan–Jun cycle · 41 coaches</div></div></div>
+    <div class="qbtn" role="button" tabindex="0"><div class="qi" aria-hidden="true">📊</div><div><div class="ql">Profit by Team</div><div class="qs">Financial overview</div></div></div>
+    <div class="qbtn" role="button" tabindex="0"><div class="qi" aria-hidden="true">📋</div><div><div class="ql">Task Assignments</div><div class="qs">Club operations board</div></div></div>
+    <div class="qbtn" role="button" tabindex="0"><div class="qi" aria-hidden="true">✅</div><div><div class="ql">Open / Close Log</div><div class="qs">Facility checklist history</div></div></div>
+    <div class="qbtn" role="button" tabindex="0"><div class="qi" aria-hidden="true">📅</div><div><div class="ql">Season Calendar</div><div class="qs">All events &amp; deadlines</div></div></div>
+    <div class="qbtn" role="button" tabindex="0"><div class="qi" aria-hidden="true">🚌</div><div><div class="ql">Travel Board</div><div class="qs">Rideshares &amp; hotels</div></div></div>
+    <div class="qbtn" role="button" tabindex="0"><div class="qi" aria-hidden="true">📬</div><div><div class="ql">VOLLEY Inbox</div><div class="qs">AI email queue</div></div></div>
+    <div class="qbtn" role="button" tabindex="0"><div class="qi" aria-hidden="true">🏗️</div><div><div class="ql">Facility Project</div><div class="qs">Buckeye Bottom rezoning</div></div></div>
+  </div>
+
+  <!-- ── SUGGESTED FUTURE DEPTS ────────────────────── -->
+  <div class="sec-lbl">Suggested Future Departments</div>
+  <div class="future-grid">
+    <div class="future-card">
+      <div class="fi">📣</div>
+      <div><div class="ft">Recruiting & Exposure</div><div class="fd">College recruiting tracker, athlete profiles, coach contact log</div></div>
+      <div class="soon-badge">Roadmap</div>
+    </div>
+    <div class="future-card">
+      <div class="fi">📚</div>
+      <div><div class="ft">Coaching Education</div><div class="fd">Certifications, clinics, film review, practice planning library</div></div>
+      <div class="soon-badge">Roadmap</div>
+    </div>
+    <div class="future-card">
+      <div class="fi">🤝</div>
+      <div><div class="ft">Sponsors & Partners</div><div class="fd">Sponsorship CRM, partner agreements, revenue tracking</div></div>
+      <div class="soon-badge">Roadmap</div>
+    </div>
+    <div class="future-card">
+      <div class="fi">📦</div>
+      <div><div class="ft">Inventory & Gear</div><div class="fd">Equipment tracking, uniform orders, ball inventory, loaner gear</div></div>
+      <div class="soon-badge">Roadmap</div>
+    </div>
+    <div class="future-card">
+      <div class="fi">💳</div>
+      <div><div class="ft">Finance & Billing</div><div class="fd">Tuition ledger, payment plans, scholarship tracking, invoicing</div></div>
+      <div class="soon-badge">Roadmap</div>
+    </div>
+    <div class="future-card">
+      <div class="fi">📢</div>
+      <div><div class="ft">Communications Hub</div><div class="fd">Mass texts, newsletters, parent portal announcements</div></div>
+      <div class="soon-badge">Roadmap</div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+  function tick() {
+    const n = new Date();
+    document.getElementById('clock').textContent =
+      n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('datestr').textContent =
+      n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+  }
+  tick(); setInterval(tick, 15000);
+
+  function createRipple(e, element) {
+    const r = document.createElement('span');
+    const rect = element.getBoundingClientRect();
+    const x = e.clientX ? e.clientX - rect.left : rect.width / 2;
+    const y = e.clientY ? e.clientY - rect.top : rect.height / 2;
+    r.style.cssText = `position:absolute;border-radius:50%;width:120px;height:120px;
+      background:rgba(255,255,255,0.06);transform:translate(-50%,-50%) scale(0);
+      animation:ripple .55s linear;pointer-events:none;
+      left:${x}px; top:${y}px;`;
+    element.style.position='relative'; element.style.overflow='hidden';
+    element.appendChild(r); setTimeout(()=>r.remove(),560);
+  }
+
+  // Interaction handlers for cards and buttons
+  document.querySelectorAll('.app-card, .qbtn').forEach(card => {
+    card.addEventListener('click', function(e) {
+      createRipple(e, this);
+    });
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        createRipple(e, this);
+        this.click();
+      }
+    });
+  });
+
+  const style = document.createElement('style');
+  style.textContent = '@keyframes ripple{to{transform:translate(-50%,-50%) scale(4);opacity:0}}';
+  document.head.appendChild(style);
+</script>
+</body>
+</html>
