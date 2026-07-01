@@ -96,6 +96,7 @@ Hosted on GitHub Pages.
 ## Google Apps Script Pattern
 Each module that needs a database uses this pattern:
 1. `doGet(e)` — read data, returns JSON
+2. `doPost(e)` — write/update data, returns JSON
 2. `doPost(e)` — write/update data, returns JSON  
 3. CORS-friendly via `ContentService.createTextOutput().setMimeType(JSON)`
 4. URL stored in `localStorage` under `midtn_{module}_script_url`
