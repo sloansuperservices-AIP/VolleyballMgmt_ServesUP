@@ -197,6 +197,7 @@
     transition: all .28s cubic-bezier(.34,1.56,.64,1);
     animation: fadeUp .5s ease both;
     text-decoration: none;
+    outline: none;
   }
 
   .app-card::before {
@@ -209,6 +210,13 @@
   .app-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
   .app-card:hover::before, .app-card:focus-within::before { opacity: 1; }
   .app-card:active { transform: translateY(-1px) scale(.99); }
+
+  /* Keyboard focus states */
+  .app-card:focus-visible, .qbtn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    box-shadow: 0 0 0 8px rgba(240,165,0,0.15);
+  }
 
   /* Large horizontal card */
   .app-card.wide {
@@ -368,6 +376,7 @@
   <header>
     <div class="logo">
       <div class="logo-mark" aria-hidden="true">🏐</div>
+      <div class="logo-mark"><span role="img" aria-label="Mid TN Volleyball Logo">🏐</span></div>
       <div class="logo-words">
         <div class="name">MID TN VOLLEYBALL</div>
         <div class="tagline">Club Management Platform &nbsp;·&nbsp; Est. 1995</div>
@@ -395,7 +404,7 @@
       <div class="ss-stat"><div class="n">300+</div><div class="l">Waitlisted</div></div>
       <div class="ss-stat"><div class="n">30+</div><div class="l">Yrs Active</div></div>
     </div>
-    <button class="ss-btn">Season Overview →</button>
+    <button class="ss-btn">Season Overview <span aria-hidden="true">→</span></button>
   </div>
 
   <!-- ── KPI ROW ───────────────────────────────────── -->
@@ -429,7 +438,7 @@
 
     <!-- TRYOUTS — wide featured -->
     <div class="app-card wide col-8" tabindex="0" role="button" style="--cg:rgba(42,125,225,0.1); --ci-bg:rgba(42,125,225,0.1); --ci-bd:rgba(42,125,225,0.25); --ab-bg:rgba(42,125,225,0.15); --ab-bd:rgba(42,125,225,0.3);">
-      <div class="card-icon" aria-hidden="true">🎯</div>
+      <div class="card-icon"><span role="img" aria-label="Tryouts Icon">🎯</span></div>
       <div class="card-body">
         <div class="card-tag" style="--ct-bg:rgba(42,125,225,0.1);--ct-c:#5ca8ff;--ct-bd:rgba(42,125,225,0.2)">Season Entry</div>
         <div class="card-title">Tryouts</div>
@@ -444,14 +453,14 @@
         </div>
         <div class="card-foot">
           <div class="cstatus" style="--cs-c:#5ca8ff"><div class="d"></div>Planning Phase</div>
-          <div class="arrow-btn">→</div>
+          <div class="arrow-btn"><span aria-hidden="true">→</span></div>
         </div>
       </div>
     </div>
 
     <!-- VOLLEY AI -->
     <div class="app-card col-4" tabindex="0" role="button" style="--cg:rgba(124,58,237,0.12); --ci-bg:rgba(124,58,237,0.1); --ci-bd:rgba(124,58,237,0.25); --ab-bg:rgba(124,58,237,0.15); --ab-bd:rgba(124,58,237,0.3);">
-      <div class="card-icon" aria-hidden="true">🤖</div>
+      <div class="card-icon"><span role="img" aria-label="AI Robot Icon">🤖</span></div>
       <div class="card-tag" style="--ct-bg:rgba(124,58,237,0.1);--ct-c:#a78bfa;--ct-bd:rgba(124,58,237,0.2)">AI Powered</div>
       <div class="card-title">VOLLEY Agent</div>
       <div class="card-desc">Club AI for front desk inquiries, website chat, and intelligent email triage and response drafting.</div>
@@ -462,13 +471,13 @@
       </div>
       <div class="card-foot">
         <div class="cstatus" style="--cs-c:var(--green)"><div class="d"></div>Online &amp; Listening</div>
-        <div class="arrow-btn">→</div>
+        <div class="arrow-btn"><span aria-hidden="true">→</span></div>
       </div>
     </div>
 
     <!-- DIBS -->
     <div class="app-card col-6" tabindex="0" role="button" style="--cg:rgba(29,184,110,0.1); --ci-bg:rgba(29,184,110,0.1); --ci-bd:rgba(29,184,110,0.25); --ab-bg:rgba(29,184,110,0.15); --ab-bd:rgba(29,184,110,0.3);">
-      <div class="card-icon" aria-hidden="true">💼</div>
+      <div class="card-icon"><span role="img" aria-label="Briefcase Icon">💼</span></div>
       <div class="card-tag" style="--ct-bg:rgba(29,184,110,0.1);--ct-c:#4ade80;--ct-bd:rgba(29,184,110,0.2)">Work Program</div>
       <div class="card-title">DIBS</div>
       <div class="card-desc">Athlete Work Play Program — track gym maintenance tasks, facility open &amp; close checklists, athlete compensation ledger, and shift scheduling.</div>
@@ -480,13 +489,13 @@
       </div>
       <div class="card-foot">
         <div class="cstatus" style="--cs-c:#4ade80"><div class="d"></div>Shifts Available</div>
-        <div class="arrow-btn">→</div>
+        <div class="arrow-btn"><span aria-hidden="true">→</span></div>
       </div>
     </div>
 
     <!-- TOURNAMENTS -->
     <div class="app-card col-6" tabindex="0" role="button" style="--cg:rgba(224,92,26,0.1); --ci-bg:rgba(224,92,26,0.1); --ci-bd:rgba(224,92,26,0.25); --ab-bg:rgba(224,92,26,0.15); --ab-bd:rgba(224,92,26,0.3);">
-      <div class="card-icon" aria-hidden="true">🏆</div>
+      <div class="card-icon"><span role="img" aria-label="Trophy Icon">🏆</span></div>
       <div class="card-tag" style="--ct-bg:rgba(224,92,26,0.1);--ct-c:#ff845a;--ct-bd:rgba(224,92,26,0.2)">Competition</div>
       <div class="card-title">Tournaments</div>
       <div class="card-desc">Manage hosted events and team travel — registration, results, hotel bookings, rideshare coordination, and travel message board.</div>
@@ -499,13 +508,13 @@
       </div>
       <div class="card-foot">
         <div class="cstatus" style="--cs-c:#ff845a"><div class="d"></div>Season Active</div>
-        <div class="arrow-btn">→</div>
+        <div class="arrow-btn"><span aria-hidden="true">→</span></div>
       </div>
     </div>
 
     <!-- STRATEGIC OBJECTIVES -->
     <div class="app-card wide col-12" tabindex="0" role="button" style="--cg:rgba(14,165,160,0.08); --ci-bg:rgba(14,165,160,0.1); --ci-bd:rgba(14,165,160,0.25); --ab-bg:rgba(14,165,160,0.15); --ab-bd:rgba(14,165,160,0.3);">
-      <div class="card-icon" aria-hidden="true" style="width:72px;height:72px;font-size:34px;border-radius:20px">🗺️</div>
+      <div class="card-icon" style="width:72px;height:72px;font-size:34px;border-radius:20px"><span role="img" aria-label="Map Icon">🗺️</span></div>
       <div class="card-body">
         <div class="card-tag" style="--ct-bg:rgba(14,165,160,0.1);--ct-c:#2dd4d0;--ct-bd:rgba(14,165,160,0.2)">Leadership</div>
         <div class="card-title">Strategic Objectives</div>
@@ -520,7 +529,7 @@
         </div>
         <div class="card-foot">
           <div class="cstatus" style="--cs-c:#2dd4d0"><div class="d"></div>Q2 Planning Underway</div>
-          <div class="arrow-btn">→</div>
+          <div class="arrow-btn"><span aria-hidden="true">→</span></div>
         </div>
       </div>
     </div>
@@ -530,46 +539,46 @@
   <!-- ── QUICK ACCESS ───────────────────────────────── -->
   <div class="sec-lbl">Quick Access</div>
   <div class="quick-grid">
-    <div class="qbtn" tabindex="0" role="button"><div class="qi" aria-hidden="true">💰</div><div><div class="ql">Coach Pay</div><div class="qs">Jan–Jun cycle · 41 coaches</div></div></div>
-    <div class="qbtn" tabindex="0" role="button"><div class="qi" aria-hidden="true">📊</div><div><div class="ql">Profit by Team</div><div class="qs">Financial overview</div></div></div>
-    <div class="qbtn" tabindex="0" role="button"><div class="qi" aria-hidden="true">📋</div><div><div class="ql">Task Assignments</div><div class="qs">Club operations board</div></div></div>
-    <div class="qbtn" tabindex="0" role="button"><div class="qi" aria-hidden="true">✅</div><div><div class="ql">Open / Close Log</div><div class="qs">Facility checklist history</div></div></div>
-    <div class="qbtn" tabindex="0" role="button"><div class="qi" aria-hidden="true">📅</div><div><div class="ql">Season Calendar</div><div class="qs">All events &amp; deadlines</div></div></div>
-    <div class="qbtn" tabindex="0" role="button"><div class="qi" aria-hidden="true">🚌</div><div><div class="ql">Travel Board</div><div class="qs">Rideshares &amp; hotels</div></div></div>
-    <div class="qbtn" tabindex="0" role="button"><div class="qi" aria-hidden="true">📬</div><div><div class="ql">VOLLEY Inbox</div><div class="qs">AI email queue</div></div></div>
-    <div class="qbtn" tabindex="0" role="button"><div class="qi" aria-hidden="true">🏗️</div><div><div class="ql">Facility Project</div><div class="qs">Buckeye Bottom rezoning</div></div></div>
+    <div class="qbtn" tabindex="0" role="button"><div class="qi"><span role="img" aria-label="Money Bag Icon">💰</span></div><div><div class="ql">Coach Pay</div><div class="qs">Jan–Jun cycle · 41 coaches</div></div></div>
+    <div class="qbtn" tabindex="0" role="button"><div class="qi"><span role="img" aria-label="Bar Chart Icon">📊</span></div><div><div class="ql">Profit by Team</div><div class="qs">Financial overview</div></div></div>
+    <div class="qbtn" tabindex="0" role="button"><div class="qi"><span role="img" aria-label="Clipboard Icon">📋</span></div><div><div class="ql">Task Assignments</div><div class="qs">Club operations board</div></div></div>
+    <div class="qbtn" tabindex="0" role="button"><div class="qi"><span role="img" aria-label="Check Mark Icon">✅</span></div><div><div class="ql">Open / Close Log</div><div class="qs">Facility checklist history</div></div></div>
+    <div class="qbtn" tabindex="0" role="button"><div class="qi"><span role="img" aria-label="Calendar Icon">📅</span></div><div><div class="ql">Season Calendar</div><div class="qs">All events &amp; deadlines</div></div></div>
+    <div class="qbtn" tabindex="0" role="button"><div class="qi"><span role="img" aria-label="Bus Icon">🚌</span></div><div><div class="ql">Travel Board</div><div class="qs">Rideshares &amp; hotels</div></div></div>
+    <div class="qbtn" tabindex="0" role="button"><div class="qi"><span role="img" aria-label="Mailbox Icon">📬</span></div><div><div class="ql">VOLLEY Inbox</div><div class="qs">AI email queue</div></div></div>
+    <div class="qbtn" tabindex="0" role="button"><div class="qi"><span role="img" aria-label="Construction Icon">🏗️</span></div><div><div class="ql">Facility Project</div><div class="qs">Buckeye Bottom rezoning</div></div></div>
   </div>
 
   <!-- ── SUGGESTED FUTURE DEPTS ────────────────────── -->
   <div class="sec-lbl">Suggested Future Departments</div>
   <div class="future-grid">
     <div class="future-card">
-      <div class="fi" aria-hidden="true">📣</div>
+      <div class="fi"><span role="img" aria-label="Megaphone Icon">📣</span></div>
       <div><div class="ft">Recruiting & Exposure</div><div class="fd">College recruiting tracker, athlete profiles, coach contact log</div></div>
       <div class="soon-badge">Roadmap</div>
     </div>
     <div class="future-card">
-      <div class="fi" aria-hidden="true">📚</div>
+      <div class="fi"><span role="img" aria-label="Books Icon">📚</span></div>
       <div><div class="ft">Coaching Education</div><div class="fd">Certifications, clinics, film review, practice planning library</div></div>
       <div class="soon-badge">Roadmap</div>
     </div>
     <div class="future-card">
-      <div class="fi" aria-hidden="true">🤝</div>
+      <div class="fi"><span role="img" aria-label="Handshake Icon">🤝</span></div>
       <div><div class="ft">Sponsors & Partners</div><div class="fd">Sponsorship CRM, partner agreements, revenue tracking</div></div>
       <div class="soon-badge">Roadmap</div>
     </div>
     <div class="future-card">
-      <div class="fi" aria-hidden="true">📦</div>
+      <div class="fi"><span role="img" aria-label="Package Icon">📦</span></div>
       <div><div class="ft">Inventory & Gear</div><div class="fd">Equipment tracking, uniform orders, ball inventory, loaner gear</div></div>
       <div class="soon-badge">Roadmap</div>
     </div>
     <div class="future-card">
-      <div class="fi" aria-hidden="true">💳</div>
+      <div class="fi"><span role="img" aria-label="Credit Card Icon">💳</span></div>
       <div><div class="ft">Finance & Billing</div><div class="fd">Tuition ledger, payment plans, scholarship tracking, invoicing</div></div>
       <div class="soon-badge">Roadmap</div>
     </div>
     <div class="future-card">
-      <div class="fi" aria-hidden="true">📢</div>
+      <div class="fi"><span role="img" aria-label="Loudspeaker Icon">📢</span></div>
       <div><div class="ft">Communications Hub</div><div class="fd">Mass texts, newsletters, parent portal announcements</div></div>
       <div class="soon-badge">Roadmap</div>
     </div>
@@ -596,8 +605,12 @@
       const y = isKeyboard ? rect.height / 2 : e.clientY - rect.top;
 
       const r = document.createElement('span');
+      const rect = this.getBoundingClientRect();
+      const x = e.clientX !== undefined ? e.clientX - rect.left : rect.width / 2;
+      const y = e.clientY !== undefined ? e.clientY - rect.top : rect.height / 2;
+
       r.style.cssText = `position:absolute;border-radius:50%;width:120px;height:120px;
-        background:rgba(255,255,255,0.06);transform:translate(-50%,-50%) scale(0);
+        background:rgba(255,255,255,0.1);transform:translate(-50%,-50%) scale(0);
         animation:ripple .55s linear;pointer-events:none;
         left:${x}px; top:${y}px;`;
       this.style.position='relative'; this.style.overflow='hidden';
@@ -607,6 +620,14 @@
     card.addEventListener('click', triggerRipple);
     card.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.click();
+      }
+    });
+
+    // Support keyboard trigger (Enter/Space)
+    card.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){
         e.preventDefault();
         this.click();
       }
