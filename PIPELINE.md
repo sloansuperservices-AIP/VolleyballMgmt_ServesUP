@@ -132,6 +132,10 @@ In the tryouts/index.html file, add an export-to-PDF button in the
 All Teams view. It should use the browser's window.print() with a
 print stylesheet that shows teams as clean black-on-white cards.
 Match the existing export CSV button style. See agents.md for design
+In the tryouts/index.html file, add an export-to-PDF button in the 
+All Teams view. It should use the browser's window.print() with a 
+print stylesheet that shows teams as clean black-on-white cards.
+Match the existing export CSV button style. See agents.md for design 
 system details.
 ```
 
@@ -152,6 +156,11 @@ Murfreesboro, TN. You handle front desk questions, website chat,
 and email support for a club that has operated since 1995.
 
 You are warm, direct, and knowledgeable. You speak to parents and
+You are VOLLEY, the AI assistant for Mid TN Volleyball Club in 
+Murfreesboro, TN. You handle front desk questions, website chat, 
+and email support for a club that has operated since 1995.
+
+You are warm, direct, and knowledgeable. You speak to parents and 
 athletes. You know:
 - We have 14 teams across 12U-18U age groups
 - Tryouts happen annually [date TBD]
@@ -159,8 +168,8 @@ athletes. You know:
 - Instagram: @midtnvbc
 - We use a tiered team structure: Black, Blue, Silver, Yellow, White
 
-Always offer to connect them with a real staff member for complex
-questions. Never make up specific dates, costs, or policies you
+Always offer to connect them with a real staff member for complex 
+questions. Never make up specific dates, costs, or policies you 
 don't know.
 ```
 
@@ -175,6 +184,7 @@ CLUBmain          ← production, what GitHub Pages serves
 ```
 
 For now, committing directly to `CLUBmain` is fine since it's a
+For now, committing directly to `CLUBmain` is fine since it's a 
 small team. Add branches when Jules starts filing PRs.
 
 ---
@@ -204,3 +214,4 @@ small team. Add branches when Jules starts filing PRs.
 | GitHub Pages Settings | https://github.com/sloansuperservices-AIP/VolleyballMgmt_ServesUP/settings/pages |
 | Google AI Studio | https://aistudio.google.com |
 | Jules (when available) | https://jules.google.com |
+

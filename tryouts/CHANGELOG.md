@@ -87,3 +87,4 @@
 - All Registration: phone numbers formatted consistently
 - Status badges: clearer color differentiation
 - Mobile: station views optimized for tablet landscape
+

@@ -97,6 +97,7 @@ Hosted on GitHub Pages.
 Each module that needs a database uses this pattern:
 1. `doGet(e)` — read data, returns JSON
 2. `doPost(e)` — write/update data, returns JSON
+2. `doPost(e)` — write/update data, returns JSON  
 3. CORS-friendly via `ContentService.createTextOutput().setMimeType(JSON)`
 4. URL stored in `localStorage` under `midtn_{module}_script_url`
 5. Settings modal in each module's bottom bar for URL entry + ping test
