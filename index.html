@@ -140,6 +140,7 @@
     transition: all .2s;
   }
   .ss-btn:hover { background: #ffba10; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(240,165,0,.3); }
+  .ss-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; transform: translateY(-2px); }
 
   /* ──────────────────── KPIS ──────────────────── */
   .kpi-row {
@@ -205,7 +206,9 @@
     opacity: 0; transition: opacity .3s;
   }
   .app-card:hover { transform: translateY(-5px) scale(1.01); border-color: rgba(255,255,255,0.14); box-shadow: 0 24px 64px rgba(0,0,0,.55); }
-  .app-card:hover::before { opacity: 1; }
+  .app-card:focus-within { transform: translateY(-5px) scale(1.01); border-color: rgba(255,255,255,0.14); box-shadow: 0 24px 64px rgba(0,0,0,.55); outline: none; }
+  .app-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .app-card:hover::before, .app-card:focus-within::before { opacity: 1; }
   .app-card:active { transform: translateY(-1px) scale(.99); }
 
   /* Keyboard focus states */
@@ -229,7 +232,7 @@
     border: 1px solid var(--ci-bd, rgba(240,165,0,0.2));
     transition: transform .22s;
   }
-  .app-card:hover .card-icon { transform: scale(1.12) rotate(-4deg); }
+  .app-card:hover .card-icon, .app-card:focus-within .card-icon { transform: scale(1.12) rotate(-4deg); }
 
   .card-body { flex: 1; display: flex; flex-direction: column; }
 
@@ -282,7 +285,7 @@
     font-size: 16px; color: var(--muted);
     transition: all .2s;
   }
-  .app-card:hover .arrow-btn {
+  .app-card:hover .arrow-btn, .app-card:focus-within .arrow-btn {
     background: var(--ab-bg, rgba(240,165,0,.15));
     border-color: var(--ab-bd, rgba(240,165,0,.3));
     color: var(--accent); transform: translateX(4px);
@@ -301,6 +304,7 @@
     transition: all .2s;
   }
   .qbtn:hover { border-color: rgba(255,255,255,.14); transform: translateY(-2px); background: var(--surface2); }
+  .qbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; transform: translateY(-2px); }
   .qi { font-size: 20px; flex-shrink: 0; }
   .ql { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.35; }
   .qs { font-size: 10px; color: var(--muted); margin-top: 1px; }
@@ -371,6 +375,7 @@
   <!-- ── HEADER ───────────────────────────────────── -->
   <header>
     <div class="logo">
+      <div class="logo-mark" aria-hidden="true">🏐</div>
       <div class="logo-mark"><span role="img" aria-label="Mid TN Volleyball Logo">🏐</span></div>
       <div class="logo-words">
         <div class="name">MID TN VOLLEYBALL</div>
@@ -378,7 +383,7 @@
       </div>
     </div>
     <div class="header-right">
-      <div class="badge-live"><div class="dot-pulse"></div>System Live</div>
+      <div class="badge-live"><div class="dot-pulse" aria-hidden="true"></div>System Live</div>
       <div class="clock-block">
         <div class="time" id="clock">—</div>
         <div class="date" id="datestr">—</div>
@@ -593,7 +598,12 @@
 
   // Ripple on card click (visual feedback)
   document.querySelectorAll('.app-card,.qbtn').forEach(card => {
-    card.addEventListener('click', function(e){
+    const triggerRipple = function(e) {
+      const isKeyboard = e.clientX === 0 && e.clientY === 0;
+      const rect = this.getBoundingClientRect();
+      const x = isKeyboard ? rect.width / 2 : e.clientX - rect.left;
+      const y = isKeyboard ? rect.height / 2 : e.clientY - rect.top;
+
       const r = document.createElement('span');
       const rect = this.getBoundingClientRect();
       const x = e.clientX !== undefined ? e.clientX - rect.left : rect.width / 2;
@@ -605,6 +615,14 @@
         left:${x}px; top:${y}px;`;
       this.style.position='relative'; this.style.overflow='hidden';
       this.appendChild(r); setTimeout(()=>r.remove(),560);
+    };
+
+    card.addEventListener('click', triggerRipple);
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.click();
+      }
     });
 
     // Support keyboard trigger (Enter/Space)
