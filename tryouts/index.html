@@ -207,9 +207,9 @@ function StatusBadge({status}){
   const s=m[status]||m.pending;
   return <Badge c={s.c}>{s.l}</Badge>;
 }
-function Btn({children,onClick,color="#1565c0",outline,sm,disabled,style:sx,danger}){
+function Btn({children,onClick,color="#1565c0",outline,sm,disabled,style:sx,danger, ...props}){
   const c=danger?"#ef5350":color;
-  return <button onClick={onClick} disabled={disabled} style={{padding:sm?"4px 10px":"8px 16px",background:outline?"transparent":c,border:outline?`1px solid ${c}`:"none",borderRadius:6,color:outline?c:"#fff",cursor:disabled?"not-allowed":"pointer",fontSize:sm?11:13,fontWeight:600,opacity:disabled?.5:1,transition:"all .15s",whiteSpace:"nowrap",...sx}}>{children}</button>;
+  return <button onClick={onClick} disabled={disabled} {...props} style={{padding:sm?"4px 10px":"8px 16px",background:outline?"transparent":c,border:outline?`1px solid ${c}`:"none",borderRadius:6,color:outline?c:"#fff",cursor:disabled?"not-allowed":"pointer",fontSize:sm?11:13,fontWeight:600,opacity:disabled?.5:1,transition:"all .15s",whiteSpace:"nowrap",...sx}}>{children}</button>;
 }
 
 // ── LOGIN ───────────────────────────────────────────────────────────
@@ -490,6 +490,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
           <div>
             <h3 style={{margin:0,fontSize:20,color:"#e8eaed",display:"flex",alignItems:"center",gap:8}}>
+              {locked&&"🔒 "}{athlete.first} {athlete.last}
               {locked&&<span role="img" aria-label="Locked">🔒 </span>}{athlete.first} {athlete.last}
               {athlete.isWalkup&&<Badge c="#ffa726" sm>Walkup</Badge>}
               {athlete.arrived&&<Badge c="#26c6da" sm>✓ Arrived</Badge>}
@@ -502,6 +503,11 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
             </div>
           </div>
           <button onClick={onClose} style={{background:"none",border:"none",color:"#666",fontSize:22,cursor:"pointer"}}>×</button>
+              {athlete.wontAccept&&<span title={athlete.wontAccept} style={{cursor:"help"}} role="img" aria-label="Team Restriction Alert">⚠️</span>}
+              {athlete.wontAccept&&<span role="img" aria-label="Warning" title={athlete.wontAccept} style={{cursor:"help"}}>⚠️</span>}
+            </div>
+          </div>
+          <button onClick={onClose} aria-label="Close modal" style={{background:"none",border:"none",color:"#666",fontSize:22,cursor:"pointer"}}>×</button>
         </div>
 
         {/* Info grid */}
@@ -553,6 +559,8 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
 
         {/* Won't Accept */}
         <div style={{marginBottom:16}}>
+          <label style={{fontSize:11,color:"#ffa726",display:"block",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>⚠️ Won't Accept (team restrictions)</label>
+          <label style={{fontSize:11,color:"#ffa726",display:"block",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}><span role="img" aria-label="Alert">⚠️</span> Won't Accept (team restrictions)</label>
           <label style={{fontSize:11,color:"#ffa726",display:"block",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}><span role="img" aria-label="Warning">⚠️</span> Won't Accept (team restrictions)</label>
           <input value={athlete.wontAccept||""} onChange={e=>onChange(athlete.id,{wontAccept:e.target.value})} disabled={locked}
             placeholder="e.g. Will not accept 14 Silver or lower"
@@ -591,6 +599,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
           {!locked&&<Btn onClick={()=>{onEmail(athlete);onClose();}} color="#42a5f5"><span role="img" aria-label="Mailbox">📬</span> Send Offer</Btn>}
           {!locked&&!athlete.hidden&&<Btn onClick={()=>{onHide(athlete);onClose();}} danger outline>Hide</Btn>}
           {athlete.hidden&&<Btn onClick={()=>{onUnhide(athlete.id);onClose();}} color="#66bb6a">Unhide</Btn>}
+          {athlete.status==="accepted"&&<Badge c="#66bb6a">🔒 Accepted — Locked</Badge>}
           {athlete.status==="accepted"&&<Badge c="#66bb6a"><span role="img" aria-label="Locked">🔒</span> Accepted — Locked</Badge>}
         </div>
       </div>
@@ -610,6 +619,7 @@ function EmailModal({athlete,team,onClose,onSend}){
       <div onClick={e=>e.stopPropagation()} style={{background:"#1a1d24",border:"1px solid #2a2e38",borderRadius:14,padding:28,width:580,maxHeight:"90vh",overflow:"auto"}}>
         <h3 style={{margin:"0 0 4px",color:"#e8eaed",fontSize:16}}>Send Offer — {athlete.first} {athlete.last}</h3>
         {team&&<p style={{margin:"0 0 4px",fontSize:12,color:"#f0a500",fontWeight:600}}>{team}</p>}
+        <p style={{margin:"0 0 16px",fontSize:12,color:"#78909c"}}>{athlete.email||"⚠️ No email on file"}</p>
         <p style={{margin:"0 0 16px",fontSize:12,color:"#78909c"}}>{athlete.email||<><span role="img" aria-label="Warning">⚠️</span> No email on file</>}</p>
         <textarea value={body} onChange={e=>setBody(e.target.value)} rows={13}
           style={{width:"100%",padding:12,background:"#12151c",border:"1px solid #2a2e38",borderRadius:8,color:"#e8eaed",fontSize:13,lineHeight:1.6,resize:"vertical"}}/>
@@ -619,6 +629,11 @@ function EmailModal({athlete,team,onClose,onSend}){
             color={copied?"#66bb6a":"#ffa726"} outline aria-label="Copy offer text to clipboard">
             {copied ? "Copied! ✓" : "Copy Text"}
           </Btn>
+          <Btn onClick={()=>navigator.clipboard?.writeText(body)} color="#ffa726" outline>Copy Text</Btn>
+          <Btn onClick={()=>{navigator.clipboard?.writeText(body); setCopied(true); setTimeout(()=>setCopied(false),2000);}} color="#ffa726" outline aria-live="polite">
+            {copied ? "✓ Copied!" : "Copy Text"}
+          </Btn>
+          <Btn onClick={()=>{navigator.clipboard?.writeText(body);setCopied(true);setTimeout(()=>setCopied(false),2000);}} color="#ffa726" outline>{copied?"✓ Copied":"Copy Text"}</Btn>
           <Btn onClick={()=>{onSend(athlete,body,team);onClose();}} color="#66bb6a" style={{flex:1}}>
             {athlete.email?"Open Mail App ✓":"Copy & Mark Contacted"}
           </Btn>
@@ -643,10 +658,17 @@ function PlayerCard({athlete,onClick,compact,showScore,teamKey}){
         borderRadius:7,cursor:locked?"default":"grab",display:"flex",alignItems:"center",gap:7,
         transition:"all .15s",opacity:athlete.hidden?0:.5>0&&athlete.status==="declined"?.55:1}}>
       {locked&&<span role="img" aria-label="Locked">🔒</span>}
+      {locked&&<span title="Locked">🔒</span>}
+      {locked&&<span title="Locked" role="img" aria-label="Locked">🔒</span>}
+      {locked&&<span role="img" aria-label="Locked" title="Locked">🔒</span>}
       <span style={{fontFamily:"monospace",fontSize:10,color:"#4fc3f7",minWidth:24}}>#{athlete.to}</span>
       <span style={{fontWeight:600,fontSize:compact?12:13,color:"#e8eaed",flex:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{athlete.first} {athlete.last}</span>
       <Badge c="#78909c" sm>{posAbbr(athlete.primaryPos)}</Badge>
       {athlete.altPos&&athlete.altPos!==athlete.primaryPos&&<Badge c="#3a3f47" sm>{posAbbr(athlete.altPos)}</Badge>}
+      {athlete.wontAccept&&<span title={athlete.wontAccept} style={{fontSize:13}}>⚠️</span>}
+      {athlete.notes&&<span title={athlete.notes} style={{fontSize:12,cursor:"help"}}>📝</span>}
+      {athlete.wontAccept&&<span title={athlete.wontAccept} style={{fontSize:13}} role="img" aria-label="Team Restriction Alert">⚠️</span>}
+      {athlete.notes&&<span title={athlete.notes} style={{fontSize:12,cursor:"help"}} role="img" aria-label="Has Notes">📝</span>}
       {athlete.wontAccept&&<span role="img" aria-label="Warning" title={athlete.wontAccept} style={{fontSize:13}}>⚠️</span>}
       {athlete.notes&&<span role="img" aria-label="Notes" title={athlete.notes} style={{fontSize:12,cursor:"help"}}>📝</span>}
       {showScore&&sc&&<Badge c={Number(sc)>=7?"#66bb6a":Number(sc)>=5?"#ffa726":"#ef5350"}>{sc}</Badge>}
@@ -744,6 +766,8 @@ function DepthChartView({athletes,activeAge,onSelect}){
                     <span style={{flex:1,fontSize:12,fontWeight:600}}>{a.first} {a.last}</span>
                     <Badge c="#546e7a" sm>{posAbbr(a.altPos)}</Badge>
                     {totalScore(a.metrics)&&<Badge c={Number(totalScore(a.metrics))>=7?"#66bb6a":Number(totalScore(a.metrics))>=5?"#ffa726":"#ef5350"} sm>{totalScore(a.metrics)}</Badge>}
+                    {a.wontAccept&&<span title={a.wontAccept} role="img" aria-label="Team Restriction Alert">⚠️</span>}
+                    {a.notes&&<span title={a.notes} role="img" aria-label="Has Notes">📝</span>}
                     {a.wontAccept&&<span role="img" aria-label="Warning" title={a.wontAccept}>⚠️</span>}
                     {a.notes&&<span role="img" aria-label="Notes" title={a.notes}>📝</span>}
                   </div>
@@ -816,6 +840,7 @@ function TeamBuilderView({athletes,activeAge,onChange,onSelect,onEmail}){
               <div key={lvl} style={{background:ts.bg,borderRadius:12,border:`2px solid ${locked?"#f0a500":ts.border}`,overflow:"hidden",transition:"border-color .2s"}}>
                 <div style={{padding:"10px 14px",background:ts.header,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    {locked&&<span>🔒</span>}
                     {locked&&<span role="img" aria-label="Locked">🔒</span>}
                     <span style={{fontWeight:800,fontSize:14,color:ts.text}}>{activeAge} {lvl}</span>
                     <span style={{fontSize:11,color:"rgba(255,255,255,.5)",background:"rgba(255,255,255,.1)",padding:"2px 7px",borderRadius:10}}>{roster.length}/12</span>
@@ -826,6 +851,7 @@ function TeamBuilderView({athletes,activeAge,onChange,onSelect,onEmail}){
                         const newLocked=!locked;
                         roster.forEach(a=>onChange(a.id,{teamLocked:newLocked}));
                       }} color={locked?"#ef5350":"#f0a500"} outline>
+                        {locked?<><span role="img" aria-label="Unlock">🔓</span> Unlock</>:<><span role="img" aria-label="Locked">🔒</span> Finalize</>}
                         {locked?<><span role="img" aria-label="Unlocked">🔓</span> Unlock</>:<><span role="img" aria-label="Locked">🔒</span> Finalize</>}
                       </Btn>
                     )}
@@ -842,6 +868,7 @@ function TeamBuilderView({athletes,activeAge,onChange,onSelect,onEmail}){
                     <div key={a.id} style={{position:"relative"}}>
                       <PlayerCard athlete={a} onClick={onSelect} compact showScore teamKey={key}/>
                       {!locked&&<button onClick={()=>onChange(a.id,{teamAssignment:null,teamLocked:false})}
+                        aria-label="Remove from team"
                         style={{position:"absolute",right:4,top:"50%",transform:"translateY(-50%)",background:"#ef535033",border:"none",borderRadius:4,color:"#ef5350",cursor:"pointer",fontSize:10,padding:"2px 5px"}}>×</button>}
                     </div>
                   ))}
@@ -953,6 +980,7 @@ function AllRegView({athletes,onSelect,onArrive,onAddWalkup}){
                 <td style={{...td,fontFamily:"monospace",fontWeight:700}}>{totalScore(a.metrics)||"—"}</td>
                 <td style={td}><StatusBadge status={a.status}/></td>
                 <td style={td}>{a.arrived?<Badge c="#26c6da" sm>✓</Badge>:<Btn sm onClick={e=>{e.stopPropagation();onArrive(a.id);}} color="#26c6da" outline>Check In</Btn>}</td>
+                <td style={td}>{a.notes&&<span title={a.notes} style={{cursor:"help"}} role="img" aria-label="Has Notes">📝</span>}{a.wontAccept&&<span title={a.wontAccept} style={{cursor:"help",marginLeft:4}} role="img" aria-label="Team Restriction Alert">⚠️</span>}</td>
                 <td style={td}>{a.notes&&<span role="img" aria-label="Notes" title={a.notes} style={{cursor:"help"}}>📝</span>}{a.wontAccept&&<span role="img" aria-label="Warning" title={a.wontAccept} style={{cursor:"help",marginLeft:4}}>⚠️</span>}</td>
                 <td style={{...td,color:"#78909c",whiteSpace:"nowrap"}}>{a.phone}</td>
                 <td style={{...td,color:"#78909c",maxWidth:160,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.email}</td>
@@ -1208,3 +1236,4 @@ document.getElementById('loading').style.display = 'none';
 </script>
 </body>
 </html>
+        

@@ -128,6 +128,10 @@ Jules is great for:
 
 **Good Jules prompt format:**
 ```
+In the tryouts/index.html file, add an export-to-PDF button in the
+All Teams view. It should use the browser's window.print() with a
+print stylesheet that shows teams as clean black-on-white cards.
+Match the existing export CSV button style. See agents.md for design
 In the tryouts/index.html file, add an export-to-PDF button in the 
 All Teams view. It should use the browser's window.print() with a 
 print stylesheet that shows teams as clean black-on-white cards.
@@ -147,6 +151,11 @@ Use AI Studio (aistudio.google.com) for:
 
 **VOLLEY system prompt to test in AI Studio:**
 ```
+You are VOLLEY, the AI assistant for Mid TN Volleyball Club in
+Murfreesboro, TN. You handle front desk questions, website chat,
+and email support for a club that has operated since 1995.
+
+You are warm, direct, and knowledgeable. You speak to parents and
 You are VOLLEY, the AI assistant for Mid TN Volleyball Club in 
 Murfreesboro, TN. You handle front desk questions, website chat, 
 and email support for a club that has operated since 1995.
@@ -174,6 +183,7 @@ CLUBmain          ← production, what GitHub Pages serves
   └── feature/dibs-module    ← work branch (optional)
 ```
 
+For now, committing directly to `CLUBmain` is fine since it's a
 For now, committing directly to `CLUBmain` is fine since it's a 
 small team. Add branches when Jules starts filing PRs.
 
