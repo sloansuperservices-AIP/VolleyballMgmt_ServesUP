@@ -60,7 +60,7 @@ function Badge({ category }) {
   const c = CAT_COLORS[category] || CAT_COLORS.event;
   return (
     <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider border ${c.bg} ${c.text} ${c.border}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`}/>
+      <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} aria-hidden="true"/>
       {category}
     </span>
   );
@@ -94,7 +94,7 @@ function JobCard({ job, onDibs, myDibs }) {
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">{job.icon}</span>
+            <span className="text-2xl" role="img" aria-label="Job Icon">{job.icon}</span>
             <div>
               <h3 className="font-bold text-white text-sm">{job.title}</h3>
               <p className="text-slate-400 text-xs mt-0.5">{job.location}</p>
@@ -107,18 +107,18 @@ function JobCard({ job, onDibs, myDibs }) {
         </div>
         <div className="flex flex-wrap gap-2 mb-4">
           <Badge category={job.category}/>
-          <span className="text-xs text-slate-400 bg-slate-700/50 px-2 py-0.5 rounded-full">📅 {new Date(job.date+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span>
-          <span className="text-xs text-slate-400 bg-slate-700/50 px-2 py-0.5 rounded-full">⏰ {job.time}</span>
-          <span className="text-xs text-slate-400 bg-slate-700/50 px-2 py-0.5 rounded-full">⏱ {job.duration}</span>
+          <span className="text-xs text-slate-400 bg-slate-700/50 px-2 py-0.5 rounded-full"><span role="img" aria-label="Date">📅</span> {new Date(job.date+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span>
+          <span className="text-xs text-slate-400 bg-slate-700/50 px-2 py-0.5 rounded-full"><span role="img" aria-label="Time">⏰</span> {job.time}</span>
+          <span className="text-xs text-slate-400 bg-slate-700/50 px-2 py-0.5 rounded-full"><span role="img" aria-label="Duration">⏱</span> {job.duration}</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-xs text-slate-400">{isFull?"No spots left":`${spotsLeft} spot${spotsLeft!==1?"s":""} left`}</span>
           {hasDibs?(
-            <button onClick={()=>onDibs(job.id)} className="px-4 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/40 transition-all">✓ Got Dibs — Cancel?</button>
+            <button onClick={()=>onDibs(job.id)} aria-label="Cancel Dibs" className="px-4 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/40 transition-all"><span role="img" aria-label="Checkmark">✓</span> Got Dibs — Cancel?</button>
           ):isFull?(
             <span className="px-4 py-1.5 rounded-xl text-xs font-bold bg-slate-700/30 text-slate-500 border border-slate-700/30">Full</span>
           ):(
-            <button onClick={()=>onDibs(job.id)} className="px-4 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-900 hover:bg-amber-400 active:scale-95 transition-all shadow-lg shadow-amber-900/30">Call Dibs!</button>
+            <button onClick={()=>onDibs(job.id)} aria-label="Call Dibs" className="px-4 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-900 hover:bg-amber-400 active:scale-95 transition-all shadow-lg shadow-amber-900/30">Call Dibs!</button>
           )}
         </div>
       </div>
@@ -152,6 +152,7 @@ function AthleteView({ jobs, setJobs, athletes }) {
 
   return (
     <div className="space-y-6">
+      {toast&&<div aria-live="polite" className={`fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl text-sm font-semibold shadow-2xl z-50 ${toast.type==="success"?"bg-emerald-500 text-white":"bg-slate-600 text-white"}`}><span role="img" aria-label={toast.type==="success"?"Success":"Cancelled"}>{toast.type==="success"?"✓ ":"✕ "}</span>{toast.msg}</div>}
       <div className="rounded-2xl border border-slate-700/60 bg-gradient-to-br from-slate-800/80 to-slate-900/80 p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -176,7 +177,6 @@ function AthleteView({ jobs, setJobs, athletes }) {
         {filtered.map(job=><JobCard key={job.id} job={job} onDibs={handleDibs} myDibs={myDibs}/>)}
         {filtered.length===0&&<div className="col-span-2 text-center py-12 text-slate-500">No jobs in this category.</div>}
       </div>
-      {toast&&<div className={`fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl text-sm font-semibold shadow-2xl z-50 ${toast.type==="success"?"bg-emerald-500 text-white":"bg-slate-600 text-white"}`}>{toast.type==="success"?"✓ ":"✕ "}{toast.msg}</div>}
     </div>
   );
 }
@@ -222,16 +222,20 @@ function AlertsPanel({ athletes }) {
         <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-4">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Send Via</div>
           <div className="flex gap-2">
-            {[["email","✉️ Email"],["sms","💬 Text"],["both","✉️+💬 Both"]].map(([v,l])=>(
-              <button key={v} onClick={()=>setChannel(v)} className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${channel===v?"bg-amber-500 text-slate-900 border-amber-500":"bg-slate-800 text-slate-400 border-slate-700 hover:text-white"}`}>{l}</button>
+            {[["email","✉️", "Email"],["sms","💬", "Text"],["both","✉️+💬", "Both"]].map(([v,ic,l])=>(
+              <button key={v} onClick={()=>setChannel(v)} aria-label={`Send via ${l}`} className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${channel===v?"bg-amber-500 text-slate-900 border-amber-500":"bg-slate-800 text-slate-400 border-slate-700 hover:text-white"}`}>
+                <span role="img" aria-label={l}>{ic}</span> {l}
+              </button>
             ))}
           </div>
         </div>
         <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-4">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Filter Recipients By</div>
           <div className="flex gap-2">
-            {[["individual","👤 Individual"],["team","🏐 Team"],["tier","⭐ Tier"]].map(([v,l])=>(
-              <button key={v} onClick={()=>setFilterMode(v)} className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${filterMode===v?"bg-sky-500 text-white border-sky-500":"bg-slate-800 text-slate-400 border-slate-700 hover:text-white"}`}>{l}</button>
+            {[["individual","👤", "Individual"],["team","🏐", "Team"],["tier","⭐", "Tier"]].map(([v,ic,l])=>(
+              <button key={v} onClick={()=>setFilterMode(v)} aria-label={`Filter by ${l}`} className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${filterMode===v?"bg-sky-500 text-white border-sky-500":"bg-slate-800 text-slate-400 border-slate-700 hover:text-white"}`}>
+                <span role="img" aria-label={l}>{ic}</span> {l}
+              </button>
             ))}
           </div>
         </div>
@@ -261,14 +265,14 @@ function AlertsPanel({ athletes }) {
         <div className="space-y-2">
           {history.map(h=>(
             <div key={h.id} className="flex items-center gap-4 rounded-xl border border-slate-700/40 bg-slate-800/30 px-4 py-3">
-              <span className="text-lg">{h.channel==="sms"?"💬":h.channel==="email"?"✉️":"📣"}</span>
+              <span className="text-lg" role="img" aria-label={h.channel}>{h.channel==="sms"?"💬":h.channel==="email"?"✉️":"📣"}</span>
               <div className="flex-1 min-w-0"><div className="text-sm font-semibold text-white truncate">{h.subject}</div><div className="text-xs text-slate-400">To: {h.to}</div></div>
               <div className="text-right shrink-0"><div className="text-xs font-bold text-sky-400">{h.recipients} sent</div><div className="text-xs text-slate-500">{h.date}</div></div>
             </div>
           ))}
         </div>
       </div>
-      {sent&&<div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl text-sm font-semibold shadow-2xl z-50 bg-emerald-500 text-white">✓ Alert sent to {sent.count} athletes via {sent.channel==="both"?"email + text":sent.channel}</div>}
+      {sent&&<div aria-live="polite" className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl text-sm font-semibold shadow-2xl z-50 bg-emerald-500 text-white"><span role="img" aria-label="Success">✓</span> Alert sent to {sent.count} athletes via {sent.channel==="both"?"email + text":sent.channel}</div>}
     </div>
   );
 }
@@ -292,15 +296,15 @@ function SplashPanel() {
           <div className="bg-slate-950 p-4">
             <div className="rounded-xl overflow-hidden border border-slate-700/60 max-w-sm mx-auto">
               <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-8 text-center">
-                <div className="text-5xl mb-3">🏐</div>
+                <div className="text-5xl mb-3" role="img" aria-label="Volleyball">🏐</div>
                 <div className="text-3xl font-black text-white tracking-tight">DIBS</div>
                 <div className="text-amber-100 text-sm mt-1 font-semibold">Work / Play Program</div>
                 <div className="text-xs text-amber-200 mt-0.5">Mid Tennessee Volleyball Club</div>
               </div>
               <div className="bg-slate-900 p-6 space-y-4">
                 <div className="text-center"><div className="text-white font-black text-lg">Earn Credit. Reduce Dues.</div><div className="text-slate-400 text-xs mt-2">Volunteer for gym setup, tournaments, and events — every shift earns credit toward your dues.</div></div>
-                {["Claim open volunteer shifts","Track earnings in real time","Credits apply directly to dues","Up to $600/season"].map((f,i)=><div key={i} className="flex items-center gap-2 text-xs text-slate-300"><span className="text-emerald-400 font-bold">✓</span>{f}</div>)}
-                <div className="bg-amber-500 text-slate-900 text-center py-3 rounded-xl text-sm font-black">Join DIBS Now →</div>
+                {["Claim open volunteer shifts","Track earnings in real time","Credits apply directly to dues","Up to $600/season"].map((f,i)=><div key={i} className="flex items-center gap-2 text-xs text-slate-300"><span className="text-emerald-400 font-bold" role="img" aria-label="Checkmark">✓</span>{f}</div>)}
+                <div className="bg-amber-500 text-slate-900 text-center py-3 rounded-xl text-sm font-black">Join DIBS Now <span aria-hidden="true">→</span></div>
               </div>
             </div>
           </div>
@@ -309,13 +313,13 @@ function SplashPanel() {
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-5">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Share Signup Link</div>
-          <div className="flex gap-2 mb-3"><div className="flex-1 bg-slate-900/60 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-400 font-mono truncate">{URL}</div><button onClick={copyLink} className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${copied?"bg-emerald-500/20 text-emerald-400 border-emerald-500/40":"bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600"}`}>{copied?"✓ Copied!":"Copy"}</button></div>
-          <div className="flex gap-2">{[["✉️","Email"],["💬","Text"],["🔗","QR"]].map(([ic,l])=><button key={l} className="flex-1 py-2 rounded-xl text-xs font-bold bg-slate-700/60 text-slate-300 hover:bg-slate-700 border border-slate-700">{ic} {l}</button>)}</div>
+          <div className="flex gap-2 mb-3"><div className="flex-1 bg-slate-900/60 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-400 font-mono truncate">{URL}</div><button onClick={copyLink} aria-label="Copy signup link" className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${copied?"bg-emerald-500/20 text-emerald-400 border-emerald-500/40":"bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600"}`} aria-live="polite">{copied?"✓ Copied!":"Copy"}</button></div>
+          <div className="flex gap-2">{[["✉️","Email"],["💬","Text"],["🔗","QR"]].map(([ic,l])=><button key={l} className="flex-1 py-2 rounded-xl text-xs font-bold bg-slate-700/60 text-slate-300 hover:bg-slate-700 border border-slate-700" aria-label={`Share via ${l}`}><span role="img" aria-label={l}>{ic}</span> {l}</button>)}</div>
         </div>
         <div className="rounded-2xl border border-pink-500/30 bg-gradient-to-br from-pink-950/30 to-purple-950/30 p-5">
-          <div className="flex items-center gap-2 mb-4"><svg viewBox="0 0 24 24" className="w-4 h-4 fill-pink-400"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg><div className="text-xs font-bold text-pink-300 uppercase tracking-wider">Instagram · @midtnvbc</div></div>
-          <div className="bg-slate-900/60 border border-slate-700/60 rounded-xl p-3 mb-3 text-xs text-slate-300 leading-relaxed">🏐 Want to earn credit toward your dues?<br/><br/>Sign up for <span className="text-amber-400 font-bold">DIBS</span> — Mid TN VBC's Work/Play!<br/><span className="text-sky-400">{URL}</span><br/><span className="text-slate-500">#MidTNVBC #VolleyballLife #DIBS</span></div>
-          <div className="flex gap-2"><button onClick={copyIg} className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-all ${igCopied?"bg-emerald-500/20 text-emerald-400 border-emerald-500/40":"bg-pink-500/20 text-pink-300 border-pink-500/30 hover:bg-pink-500/30"}`}>{igCopied?"✓ Copied!":"Copy Caption"}</button><button className="px-3 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-white">Open IG →</button></div>
+          <div className="flex items-center gap-2 mb-4"><svg role="img" aria-label="Instagram Logo" viewBox="0 0 24 24" className="w-4 h-4 fill-pink-400"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg><div className="text-xs font-bold text-pink-300 uppercase tracking-wider">Instagram · @midtnvbc</div></div>
+          <div className="bg-slate-900/60 border border-slate-700/60 rounded-xl p-3 mb-3 text-xs text-slate-300 leading-relaxed"><span role="img" aria-label="Volleyball">🏐</span> Want to earn credit toward your dues?<br/><br/>Sign up for <span className="text-amber-400 font-bold">DIBS</span> — Mid TN VBC's Work/Play!<br/><span className="text-sky-400">{URL}</span><br/><span className="text-slate-500">#MidTNVBC #VolleyballLife #DIBS</span></div>
+          <div className="flex gap-2"><button onClick={copyIg} aria-label="Copy Instagram caption" className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-all ${igCopied?"bg-emerald-500/20 text-emerald-400 border-emerald-500/40":"bg-pink-500/20 text-pink-300 border-pink-500/30 hover:bg-pink-500/30"}`} aria-live="polite">{igCopied?"✓ Copied!":"Copy Caption"}</button><button className="px-3 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-white">Open IG <span aria-hidden="true">→</span></button></div>
         </div>
       </div>
     </div>
@@ -478,9 +482,9 @@ function ImportPanel({ onImportAthletes, onImportJobs, existingAthletes, existin
     <div className="space-y-5">
       {/* Mode selector */}
       <div className="grid grid-cols-2 gap-3">
-        {[["athletes","👤 Import Athletes","Roster, contact info, team & tier assignments"],["jobs","📋 Import Job List","Existing volunteer job listings & schedules"]].map(([v,l,d])=>(
+        {[["athletes","👤", "Import Athletes","Roster, contact info, team & tier assignments"],["jobs","📋", "Import Job List","Existing volunteer job listings & schedules"]].map(([v,ic,l,d])=>(
           <button key={v} onClick={()=>{setMode(v);reset();}} className={`rounded-2xl border p-4 text-left transition-all ${mode===v?"border-amber-500/50 bg-amber-950/30":"border-slate-700/60 bg-slate-800/40 hover:border-slate-600"}`}>
-            <div className={`text-sm font-black mb-1 ${mode===v?"text-amber-400":"text-white"}`}>{l}</div>
+            <div className={`text-sm font-black mb-1 ${mode===v?"text-amber-400":"text-white"}`}><span role="img" aria-label={l}>{ic}</span> {l}</div>
             <div className="text-xs text-slate-400">{d}</div>
           </button>
         ))}
@@ -504,12 +508,12 @@ function ImportPanel({ onImportAthletes, onImportJobs, existingAthletes, existin
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex gap-2">
-              {[["upload","⬆ Upload CSV"],["paste","📋 Paste Data"]].map(([v,l])=>(
-                <button key={v} onClick={()=>setInputMode(v)} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${inputMode===v?"bg-sky-500 text-white border-sky-500":"bg-slate-800 text-slate-400 border-slate-700 hover:text-white"}`}>{l}</button>
+              {[["upload","⬆", "Upload CSV"],["paste","📋", "Paste Data"]].map(([v,ic,l])=>(
+                <button key={v} onClick={()=>setInputMode(v)} aria-label={l} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${inputMode===v?"bg-sky-500 text-white border-sky-500":"bg-slate-800 text-slate-400 border-slate-700 hover:text-white"}`}><span role="img" aria-label={l}>{ic}</span> {l}</button>
               ))}
             </div>
             <button onClick={downloadTemplate} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-700/60 text-slate-300 hover:bg-slate-700 border border-slate-600 transition-colors">
-              ⬇ Download {mode==="athletes"?"Athlete":"Job"} Template
+              <span role="img" aria-label="Download">⬇</span> Download {mode==="athletes"?"Athlete":"Job"} Template
             </button>
           </div>
 
@@ -518,7 +522,7 @@ function ImportPanel({ onImportAthletes, onImportJobs, existingAthletes, existin
               onClick={()=>fileRef.current?.click()}
               className="border-2 border-dashed border-slate-600 hover:border-amber-500/50 rounded-2xl p-10 text-center cursor-pointer transition-all group"
             >
-              <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">📂</div>
+              <div className="text-4xl mb-3 group-hover:scale-110 transition-transform" role="img" aria-label="Folder">📂</div>
               <div className="text-sm font-bold text-white mb-1">Drop your CSV file here</div>
               <div className="text-xs text-slate-400 mb-4">or click to browse · .csv, .txt accepted</div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold">Choose File</div>
@@ -728,8 +732,10 @@ function ManagerView({ jobs, setJobs, athletes, setAthletes }) {
 
       {/* Sub-tabs */}
       <div className="flex gap-1 bg-slate-800/60 rounded-2xl p-1 border border-slate-700/60 overflow-x-auto">
-        {[["jobs","⚙️ Jobs"],["alerts","📣 Alerts"],["splash","🔗 Share"],["import","⬆ Import"]].map(([v,l])=>(
-          <button key={v} onClick={()=>setTab(v)} className={`shrink-0 flex-1 py-2.5 rounded-xl text-xs font-black transition-all whitespace-nowrap ${tab===v?"bg-amber-500 text-slate-900 shadow":"text-slate-400 hover:text-white"}`}>{l}</button>
+        {[["jobs","⚙️", "Jobs"],["alerts","📣", "Alerts"],["splash","🔗", "Share"],["import","⬆", "Import"]].map(([v,ic,l])=>(
+          <button key={v} onClick={()=>setTab(v)} aria-label={l} className={`shrink-0 flex-1 py-2.5 rounded-xl text-xs font-black transition-all whitespace-nowrap ${tab===v?"bg-amber-500 text-slate-900 shadow":"text-slate-400 hover:text-white"}`}>
+            <span role="img" aria-label={l}>{ic}</span> {l}
+          </button>
         ))}
       </div>
 
@@ -756,7 +762,7 @@ function ManagerView({ jobs, setJobs, athletes, setAthletes }) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2"><label className="text-xs text-slate-400 mb-1 block">Job Title *</label><input required value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="e.g. Court Setup – 14U Practice" className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"/></div>
                 <div><label className="text-xs text-slate-400 mb-1 block">Category</label><select value={form.category} onChange={e=>setForm({...form,category:e.target.value})} className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/50"><option value="gym">Gym</option><option value="tournament">Tournament</option><option value="event">Event</option></select></div>
-                <div><label className="text-xs text-slate-400 mb-1 block">Icon</label><div className="flex gap-1.5 flex-wrap">{ICONS.map(ic=><button type="button" key={ic} onClick={()=>setForm({...form,icon:ic})} className={`w-9 h-9 rounded-xl text-lg flex items-center justify-center border transition-all ${form.icon===ic?"border-amber-400 bg-amber-500/20":"border-slate-700 bg-slate-800 hover:border-slate-600"}`}>{ic}</button>)}</div></div>
+                <div><label className="text-xs text-slate-400 mb-1 block">Icon</label><div className="flex gap-1.5 flex-wrap">{ICONS.map(ic=><button type="button" key={ic} onClick={()=>setForm({...form,icon:ic})} aria-label={`Select ${ic} icon`} className={`w-9 h-9 rounded-xl text-lg flex items-center justify-center border transition-all ${form.icon===ic?"border-amber-400 bg-amber-500/20":"border-slate-700 bg-slate-800 hover:border-slate-600"}`}><span role="img" aria-label="Icon option">{ic}</span></button>)}</div></div>
                 <div><label className="text-xs text-slate-400 mb-1 block">Date *</label><input required type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/50"/></div>
                 <div><label className="text-xs text-slate-400 mb-1 block">Time *</label><input required value={form.time} onChange={e=>setForm({...form,time:e.target.value})} placeholder="8:00 AM" className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"/></div>
                 <div><label className="text-xs text-slate-400 mb-1 block">Duration</label><input value={form.duration} onChange={e=>setForm({...form,duration:e.target.value})} placeholder="2 hrs" className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"/></div>
@@ -771,7 +777,7 @@ function ManagerView({ jobs, setJobs, athletes, setAthletes }) {
           <div className="space-y-2">
             {jobs.map(job=>(
               <div key={job.id} className="rounded-xl border border-slate-700/50 bg-slate-800/40 px-4 py-3 flex items-center gap-4">
-                <span className="text-xl">{job.icon}</span>
+                <span className="text-xl" role="img" aria-label="Job Icon">{job.icon}</span>
                 <div className="flex-1 min-w-0"><div className="text-sm font-bold text-white truncate">{job.title}</div><div className="text-xs text-slate-400">{new Date(job.date+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"})} · {job.time} · {job.location}</div></div>
                 <div className="flex items-center gap-3 shrink-0">
                   <Badge category={job.category}/>
@@ -836,8 +842,8 @@ export default function App() {
             </div>
           </div>
           <div className="flex bg-slate-800 rounded-xl p-1 gap-1">
-            <button onClick={()=>setView("athlete")} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${view==="athlete"?"bg-amber-500 text-slate-900":"text-slate-400 hover:text-white"}`}>🏐 Athlete</button>
-            <button onClick={()=>setView("manager")} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${view==="manager"?"bg-amber-500 text-slate-900":"text-slate-400 hover:text-white"}`}>⚙️ Manager</button>
+            <button onClick={()=>setView("athlete")} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${view==="athlete"?"bg-amber-500 text-slate-900":"text-slate-400 hover:text-white"}`} aria-label="Athlete View"><span role="img" aria-label="Volleyball">🏐</span> Athlete</button>
+            <button onClick={()=>setView("manager")} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${view==="manager"?"bg-amber-500 text-slate-900":"text-slate-400 hover:text-white"}`} aria-label="Manager View"><span role="img" aria-label="Settings">⚙️</span> Manager</button>
           </div>
         </div>
       </div>
