@@ -13,3 +13,7 @@
 ## 2026-06-29 - [Keyboard Parity for Card-based Hubs]
 **Learning:** High-density dashboards using <div> cards for navigation are completely inaccessible to keyboard users unless explicitly given role="button" and tabindex="0". Furthermore, visual feedback like ripple effects should be programmatically centered when triggered by keyboard to maintain "delight" consistency.
 **Action:** Always audit interactive <div> elements for keyboard parity; implement :focus-visible for clean aesthetics and ensure JS-driven visual feedback handles coordinate-less triggers.
+
+## 2026-06-30 - [Global Escape Key for Modal Dismissal]
+**Learning:** In applications using multiple React-based modals/overlays (AthleteModal, EmailModal, etc.), users intuitively expect the 'Escape' key to dismiss the active view. Implementing a global event listener in the parent component is a high-impact micro-UX win that significantly improves accessibility for keyboard and power users.
+**Action:** Always implement a global 'Escape' key handler in the main application component when using custom modal systems to ensure a standard and accessible dismissal experience.

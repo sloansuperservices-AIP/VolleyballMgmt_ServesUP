@@ -1139,6 +1139,20 @@ function TryoutApp() {
     else { navigator.clipboard?.writeText(body); }
   }, [updateAthlete]);
 
+  // Handle Escape key to close modals
+  useEffect(() => {
+    const handleEsc = (event) => {
+      if (event.key === 'Escape') {
+        setSelectedPlayer(null);
+        setEmailPlayer(null);
+        setHidePlayer(null);
+        setShowImport(false);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
   // If not logged in, show login
   if (!user) return <Login onLogin={setUser} />;
 
