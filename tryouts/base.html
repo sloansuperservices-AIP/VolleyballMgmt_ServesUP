@@ -11,7 +11,6 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:#0d1017;color:#e8eaed;font-family:'Inter',-apple-system,sans-serif;min-height:100vh}
-:focus-visible{outline:2px solid #4fc3f7;outline-offset:2px}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:#12151c}::-webkit-scrollbar-thumb{background:#2a2e38;border-radius:3px}
 input,textarea,select{font-family:inherit}
 @media print{
@@ -25,7 +24,7 @@ input,textarea,select{font-family:inherit}
 <body>
 <div id="root"></div>
 <div id="loading" style="position:fixed;inset:0;background:#0d1017;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:9999">
-  <div style="font-size:48px" role="img" aria-label="Volleyball">🏐</div>
+  <div style="font-size:48px">🏐</div>
   <div style="color:#f0a500;font-family:sans-serif;font-size:18px;font-weight:700">MID TN VBC</div>
   <div style="color:#546e7a;font-family:sans-serif;font-size:13px">Loading Tryout Manager...</div>
   <div id="load-err" style="color:#ef5350;font-family:sans-serif;font-size:12px;margin-top:8px;max-width:400px;text-align:center"></div>
@@ -225,7 +224,7 @@ function Login({onLogin}){
   return(
     <div style={{minHeight:"100vh",background:"#0d1017",display:"flex",alignItems:"center",justifyContent:"center"}}>
       <div style={{background:"#1a1d24",border:"1px solid #2a2e38",borderRadius:16,padding:40,width:380,textAlign:"center"}}>
-        <div style={{fontSize:44,marginBottom:10}} role="img" aria-label="Volleyball">🏐</div>
+        <div style={{fontSize:44,marginBottom:10}}>🏐</div>
         <h1 style={{margin:"0 0 4px",fontSize:26,fontWeight:800}}><span style={{color:"#f0a500"}}>MID TN</span> VBC</h1>
         <p style={{color:"#78909c",fontSize:13,margin:"0 0 6px"}}>Tryout Manager v2 · 2026–2027</p>
         <a href="../" style={{display:"block",fontSize:12,color:"#4fc3f7",marginBottom:24}}>← Back to Hub</a>
@@ -490,7 +489,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
           <div>
             <h3 style={{margin:0,fontSize:20,color:"#e8eaed",display:"flex",alignItems:"center",gap:8}}>
-              {locked&&<span role="img" aria-label="Locked">🔒 </span>}{athlete.first} {athlete.last}
+              {locked&&"🔒 "}{athlete.first} {athlete.last}
               {athlete.isWalkup&&<Badge c="#ffa726" sm>Walkup</Badge>}
               {athlete.arrived&&<Badge c="#26c6da" sm>✓ Arrived</Badge>}
             </h3>
@@ -498,7 +497,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
               <span style={{color:"#4fc3f7",fontSize:13,fontFamily:"monospace"}}>TO# {athlete.to}</span>
               {sc&&<Badge c="#66bb6a">Score: {sc}</Badge>}
               <StatusBadge status={athlete.status}/>
-              {athlete.wontAccept&&<span role="img" aria-label="Warning" title={athlete.wontAccept} style={{cursor:"help"}}>⚠️</span>}
+              {athlete.wontAccept&&<span title={athlete.wontAccept} style={{cursor:"help"}}>⚠️</span>}
             </div>
           </div>
           <button onClick={onClose} style={{background:"none",border:"none",color:"#666",fontSize:22,cursor:"pointer"}}>×</button>
@@ -553,7 +552,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
 
         {/* Won't Accept */}
         <div style={{marginBottom:16}}>
-          <label style={{fontSize:11,color:"#ffa726",display:"block",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}><span role="img" aria-label="Warning">⚠️</span> Won't Accept (team restrictions)</label>
+          <label style={{fontSize:11,color:"#ffa726",display:"block",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>⚠️ Won't Accept (team restrictions)</label>
           <input value={athlete.wontAccept||""} onChange={e=>onChange(athlete.id,{wontAccept:e.target.value})} disabled={locked}
             placeholder="e.g. Will not accept 14 Silver or lower"
             style={{width:"100%",padding:"8px 12px",background:"#12151c",border:"1px solid #ffa72633",borderRadius:8,color:"#e8eaed",fontSize:13}}/>
@@ -588,10 +587,10 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
         </div>
 
         <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-          {!locked&&<Btn onClick={()=>{onEmail(athlete);onClose();}} color="#42a5f5"><span role="img" aria-label="Mailbox">📬</span> Send Offer</Btn>}
+          {!locked&&<Btn onClick={()=>{onEmail(athlete);onClose();}} color="#42a5f5">📬 Send Offer</Btn>}
           {!locked&&!athlete.hidden&&<Btn onClick={()=>{onHide(athlete);onClose();}} danger outline>Hide</Btn>}
           {athlete.hidden&&<Btn onClick={()=>{onUnhide(athlete.id);onClose();}} color="#66bb6a">Unhide</Btn>}
-          {athlete.status==="accepted"&&<Badge c="#66bb6a"><span role="img" aria-label="Locked">🔒</span> Accepted — Locked</Badge>}
+          {athlete.status==="accepted"&&<Badge c="#66bb6a">🔒 Accepted — Locked</Badge>}
         </div>
       </div>
     </div>
@@ -610,15 +609,12 @@ function EmailModal({athlete,team,onClose,onSend}){
       <div onClick={e=>e.stopPropagation()} style={{background:"#1a1d24",border:"1px solid #2a2e38",borderRadius:14,padding:28,width:580,maxHeight:"90vh",overflow:"auto"}}>
         <h3 style={{margin:"0 0 4px",color:"#e8eaed",fontSize:16}}>Send Offer — {athlete.first} {athlete.last}</h3>
         {team&&<p style={{margin:"0 0 4px",fontSize:12,color:"#f0a500",fontWeight:600}}>{team}</p>}
-        <p style={{margin:"0 0 16px",fontSize:12,color:"#78909c"}}>{athlete.email||<><span role="img" aria-label="Warning">⚠️</span> No email on file</>}</p>
+        <p style={{margin:"0 0 16px",fontSize:12,color:"#78909c"}}>{athlete.email||"⚠️ No email on file"}</p>
         <textarea value={body} onChange={e=>setBody(e.target.value)} rows={13}
           style={{width:"100%",padding:12,background:"#12151c",border:"1px solid #2a2e38",borderRadius:8,color:"#e8eaed",fontSize:13,lineHeight:1.6,resize:"vertical"}}/>
         <div style={{display:"flex",gap:8,marginTop:14,flexWrap:"wrap"}}>
           <Btn onClick={onClose} color="#2a2e38">Cancel</Btn>
-          <Btn onClick={()=>{navigator.clipboard?.writeText(body); setCopied(true); setTimeout(()=>setCopied(false), 2000);}}
-            color={copied?"#66bb6a":"#ffa726"} outline aria-label="Copy offer text to clipboard">
-            {copied ? "Copied! ✓" : "Copy Text"}
-          </Btn>
+          <Btn onClick={()=>navigator.clipboard?.writeText(body)} color="#ffa726" outline>Copy Text</Btn>
           <Btn onClick={()=>{onSend(athlete,body,team);onClose();}} color="#66bb6a" style={{flex:1}}>
             {athlete.email?"Open Mail App ✓":"Copy & Mark Contacted"}
           </Btn>
@@ -636,19 +632,17 @@ function PlayerCard({athlete,onClick,compact,showScore,teamKey}){
   return(
     <div draggable={!locked} onDragStart={e=>!locked&&e.dataTransfer.setData("text/plain",athlete.id)}
       onClick={()=>onClick?.(athlete)}
-      tabIndex={0} role="button" aria-label={`View details for ${athlete.first} ${athlete.last}`}
-      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onClick?.(athlete)}
       style={{padding:compact?"5px 8px":"9px 12px",margin:"3px 0",background:athlete.status==="declined"?"#2a1215":"#1a1d24",
         border:`1px solid ${locked?"#f0a50044":athlete.status==="declined"?"#ef535033":"#2a2e38"}`,
         borderRadius:7,cursor:locked?"default":"grab",display:"flex",alignItems:"center",gap:7,
         transition:"all .15s",opacity:athlete.hidden?0:.5>0&&athlete.status==="declined"?.55:1}}>
-      {locked&&<span role="img" aria-label="Locked">🔒</span>}
+      {locked&&<span title="Locked">🔒</span>}
       <span style={{fontFamily:"monospace",fontSize:10,color:"#4fc3f7",minWidth:24}}>#{athlete.to}</span>
       <span style={{fontWeight:600,fontSize:compact?12:13,color:"#e8eaed",flex:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{athlete.first} {athlete.last}</span>
       <Badge c="#78909c" sm>{posAbbr(athlete.primaryPos)}</Badge>
       {athlete.altPos&&athlete.altPos!==athlete.primaryPos&&<Badge c="#3a3f47" sm>{posAbbr(athlete.altPos)}</Badge>}
-      {athlete.wontAccept&&<span role="img" aria-label="Warning" title={athlete.wontAccept} style={{fontSize:13}}>⚠️</span>}
-      {athlete.notes&&<span role="img" aria-label="Notes" title={athlete.notes} style={{fontSize:12,cursor:"help"}}>📝</span>}
+      {athlete.wontAccept&&<span title={athlete.wontAccept} style={{fontSize:13}}>⚠️</span>}
+      {athlete.notes&&<span title={athlete.notes} style={{fontSize:12,cursor:"help"}}>📝</span>}
       {showScore&&sc&&<Badge c={Number(sc)>=7?"#66bb6a":Number(sc)>=5?"#ffa726":"#ef5350"}>{sc}</Badge>}
       <StatusBadge status={athlete.status}/>
     </div>
@@ -744,8 +738,8 @@ function DepthChartView({athletes,activeAge,onSelect}){
                     <span style={{flex:1,fontSize:12,fontWeight:600}}>{a.first} {a.last}</span>
                     <Badge c="#546e7a" sm>{posAbbr(a.altPos)}</Badge>
                     {totalScore(a.metrics)&&<Badge c={Number(totalScore(a.metrics))>=7?"#66bb6a":Number(totalScore(a.metrics))>=5?"#ffa726":"#ef5350"} sm>{totalScore(a.metrics)}</Badge>}
-                    {a.wontAccept&&<span role="img" aria-label="Warning" title={a.wontAccept}>⚠️</span>}
-                    {a.notes&&<span role="img" aria-label="Notes" title={a.notes}>📝</span>}
+                    {a.wontAccept&&<span title={a.wontAccept}>⚠️</span>}
+                    {a.notes&&<span title={a.notes}>📝</span>}
                   </div>
                 ))}
                 {list.length===0&&<div style={{padding:20,textAlign:"center",color:"#333",fontSize:12}}>None</div>}
@@ -816,7 +810,7 @@ function TeamBuilderView({athletes,activeAge,onChange,onSelect,onEmail}){
               <div key={lvl} style={{background:ts.bg,borderRadius:12,border:`2px solid ${locked?"#f0a500":ts.border}`,overflow:"hidden",transition:"border-color .2s"}}>
                 <div style={{padding:"10px 14px",background:ts.header,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
-                    {locked&&<span role="img" aria-label="Locked">🔒</span>}
+                    {locked&&<span>🔒</span>}
                     <span style={{fontWeight:800,fontSize:14,color:ts.text}}>{activeAge} {lvl}</span>
                     <span style={{fontSize:11,color:"rgba(255,255,255,.5)",background:"rgba(255,255,255,.1)",padding:"2px 7px",borderRadius:10}}>{roster.length}/12</span>
                   </div>
@@ -826,7 +820,7 @@ function TeamBuilderView({athletes,activeAge,onChange,onSelect,onEmail}){
                         const newLocked=!locked;
                         roster.forEach(a=>onChange(a.id,{teamLocked:newLocked}));
                       }} color={locked?"#ef5350":"#f0a500"} outline>
-                        {locked?<><span role="img" aria-label="Unlocked">🔓</span> Unlock</>:<><span role="img" aria-label="Locked">🔒</span> Finalize</>}
+                        {locked?"🔓 Unlock":"🔒 Finalize"}
                       </Btn>
                     )}
                   </div>
@@ -858,7 +852,7 @@ function TeamBuilderView({athletes,activeAge,onChange,onSelect,onEmail}){
                       const uncontacted=roster.filter(a=>!["offered","accepted","declined"].includes(a.status));
                       if(uncontacted.length>0) onEmail(uncontacted[0],key);
                     }} color={ts.header} style={{width:"100%",background:ts.header,border:`1px solid ${ts.border}88`}}>
-                      <span role="img" aria-label="Mailbox">📬</span> Send Offers ({roster.filter(a=>!["offered","accepted","declined"].includes(a.status)).length} pending)
+                      📬 Send Offers ({roster.filter(a=>!["offered","accepted","declined"].includes(a.status)).length} pending)
                     </Btn>
                   </div>
                 )}
@@ -953,7 +947,7 @@ function AllRegView({athletes,onSelect,onArrive,onAddWalkup}){
                 <td style={{...td,fontFamily:"monospace",fontWeight:700}}>{totalScore(a.metrics)||"—"}</td>
                 <td style={td}><StatusBadge status={a.status}/></td>
                 <td style={td}>{a.arrived?<Badge c="#26c6da" sm>✓</Badge>:<Btn sm onClick={e=>{e.stopPropagation();onArrive(a.id);}} color="#26c6da" outline>Check In</Btn>}</td>
-                <td style={td}>{a.notes&&<span role="img" aria-label="Notes" title={a.notes} style={{cursor:"help"}}>📝</span>}{a.wontAccept&&<span role="img" aria-label="Warning" title={a.wontAccept} style={{cursor:"help",marginLeft:4}}>⚠️</span>}</td>
+                <td style={td}>{a.notes&&<span title={a.notes} style={{cursor:"help"}}>📝</span>}{a.wontAccept&&<span title={a.wontAccept} style={{cursor:"help",marginLeft:4}}>⚠️</span>}</td>
                 <td style={{...td,color:"#78909c",whiteSpace:"nowrap"}}>{a.phone}</td>
                 <td style={{...td,color:"#78909c",maxWidth:160,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.email}</td>
               </tr>
@@ -1111,9 +1105,9 @@ function HiddenView({athletes, onUnhide, onSelect}) {
 }
 function TryoutApp() {
   const [user, setUser] = useState(null); // {role, label, station}
-  const [athletes, setAthletes] = useState(() => initAthletes(RAW));
+  const [athletes, setAthletes] = useState(() => initAthletes(RAW_ATHLETES));
   const [activeAge, setActiveAge] = useState("12");
-  const [view, setView] = useState("allreg");
+  const [view, setView] = useState("depth");
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [emailPlayer, setEmailPlayer] = useState(null);
   const [emailTeam, setEmailTeam] = useState("");
@@ -1139,16 +1133,27 @@ function TryoutApp() {
   }, [updateAthlete]);
 
   // If not logged in, show login
-  if (!user) return <Login onLogin={setUser} />;
+  if (!user) return <LoginScreen onLogin={setUser} />;
 
   // If station user, show station entry view
   if (user.role === "station") {
-    if (user.isCheckin) return <CheckInStation athletes={athletes} onArrive={id => updateAthlete(id, {arrived: true, status: "arrived"})} onAddWalkup={a => setAthletes(prev => [...prev, a])} onLogout={() => setUser(null)} />;
-    return <StationView stationKey={user.station} label={user.label} athletes={athletes} updateMetric={updateMetric} onLogout={()=>setUser(null)} />;
+    return <StationEntryView station={user.station} athletes={athletes} updateMetric={updateMetric} onLogout={()=>setUser(null)} />;
   }
 
   // Head Coach view below
-  const totalReg = athletes.filter(a=>!a.hidden).length;
+  const ageAthletes = athletes.filter(a => a.ageGroup === activeAge && !a.hidden);
+  const grouped = {setter:[],middle:[],outside:[],defense:[],unsorted:[]};
+  ageAthletes.forEach(a => { if (!a.teamAssignment) (grouped[a.posCategory]||grouped.unsorted).push(a); });
+  const teamRosters = {};
+  SKILL_LEVELS.forEach(lvl => { teamRosters[`${activeAge}-${lvl}`] = ageAthletes.filter(a => a.teamAssignment === `${activeAge}-${lvl}`); });
+  const filteredAll = (() => {
+    let list = athletes.filter(a => a.division && !a.hidden);
+    if (search) { const s = search.toLowerCase(); list = list.filter(a => a.first.toLowerCase().includes(s)||a.last.toLowerCase().includes(s)||a.to.includes(s)||a.division.toLowerCase().includes(s)||a.primaryPos.toLowerCase().includes(s)); }
+    return list;
+  })();
+  const allTeamsData = {};
+  AGE_GROUPS.forEach(age => { allTeamsData[age] = {}; SKILL_LEVELS.forEach(lvl => { allTeamsData[age][lvl] = athletes.filter(a => a.teamAssignment===`${age}-${lvl}` && !a.hidden); }); });
+  const totalReg = athletes.filter(a=>a.division&&!a.hidden).length;
   const totalAssigned = athletes.filter(a=>a.teamAssignment&&!a.hidden).length;
   const totalAccepted = athletes.filter(a=>a.status==="accepted"&&!a.hidden).length;
   const totalHidden = athletes.filter(a=>a.hidden).length;
@@ -1185,15 +1190,125 @@ function TryoutApp() {
       </div>
 
       <div style={{padding:"20px 24px"}}>
-        {view === "allreg" && <AllRegView athletes={athletes} onSelect={setSelectedPlayer} onArrive={id => updateAthlete(id, {arrived: true, status: "arrived"})} onAddWalkup={a => setAthletes(prev => [...prev, a])} />}
-        {view === "depth" && <DepthChartView athletes={athletes} activeAge={activeAge} onSelect={setSelectedPlayer} />}
-        {view === "tryout" && <ResultsView athletes={athletes} activeAge={activeAge} onSelect={setSelectedPlayer} updateMetric={updateMetric} />}
-        {view === "teams" && <TeamBuilderView athletes={athletes} activeAge={activeAge} onChange={updateAthlete} onSelect={setSelectedPlayer} onEmail={(a, t) => { setEmailPlayer(a); setEmailTeam(t); }} />}
-        {view === "allteams" && <AllTeamsView athletes={athletes} onSelect={setSelectedPlayer} />}
+        {/* ALL REG */}
+        {view === "allreg" && <div>
+          <div style={{display:"flex",gap:12,marginBottom:16,alignItems:"center"}}>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search name, TO#, position, division..." style={{flex:1,maxWidth:400,padding:"8px 14px",background:"#1a1d24",border:"1px solid #2a2e38",borderRadius:8,color:"#e8eaed",fontSize:13}} />
+            <span style={{color:"#546e7a",fontSize:13}}>{filteredAll.length} athletes</span>
+          </div>
+          <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+            <thead><tr style={{borderBottom:"1px solid #2a2e38"}}>{["TO#","First","Last","Div","POS","Alt","Phone","Email","Score","Status",""].map(h=><th key={h} style={{padding:"8px 10px",textAlign:"left",color:"#78909c",fontSize:11,fontWeight:600,textTransform:"uppercase"}}>{h}</th>)}</tr></thead>
+            <tbody>{filteredAll.map(a => {const sc=getTotalScore(a.metrics); return (
+              <tr key={a.id} onClick={()=>setSelectedPlayer(a)} style={{borderBottom:"1px solid #1a1d24",cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="#1a1d24"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                <td style={{padding:"8px 10px",fontFamily:"monospace",color:"#4fc3f7"}}>{a.to}</td><td style={{padding:"8px 10px"}}>{a.first}</td><td style={{padding:"8px 10px"}}>{a.last}</td>
+                <td style={{padding:"8px 10px"}}><Badge color="#78909c">{a.ageGroup}s</Badge></td><td style={{padding:"8px 10px"}}><Badge color="#4fc3f7">{posAbbr(a.primaryPos)}</Badge></td>
+                <td style={{padding:"8px 10px",color:"#78909c"}}>{posAbbr(a.altPos)}</td><td style={{padding:"8px 10px",color:"#78909c",fontSize:12}}>{a.phone}</td>
+                <td style={{padding:"8px 10px",color:"#78909c",fontSize:12,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis"}}>{a.email}</td>
+                <td style={{padding:"8px 10px"}}>{sc?<Badge color="#66bb6a">{sc}</Badge>:<span style={{color:"#333"}}>---</span>}</td>
+                <td style={{padding:"8px 10px"}}><StatusBadge status={a.status}/></td>
+                <td style={{padding:"8px 10px"}}><Btn small onClick={e=>{e.stopPropagation();setHidePlayer(a);}} color="#ef5350" outline>Hide</Btn></td>
+              </tr>);})}</tbody>
+          </table></div>
+        </div>}
+
+        {/* DEPTH CHART */}
+        {view === "depth" && <div>
+          <h2 style={{fontSize:18,fontWeight:700,margin:"0 0 16px"}}>{activeAge}'s Depth Chart</h2>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))",gap:16}}>
+            {POS_CATEGORIES.map(cat => (
+              <div key={cat.key} style={{background:"#12151c",borderRadius:12,border:"1px solid #1e222b",overflow:"hidden"}}>
+                <div style={{padding:"12px 16px",background:"#1a1d24",borderBottom:"1px solid #1e222b",display:"flex",justifyContent:"space-between"}}>
+                  <span style={{fontWeight:700,fontSize:14,color:"#4fc3f7"}}>{cat.label}</span>
+                  <span style={{fontSize:12,color:"#546e7a"}}>{grouped[cat.key]?.length||0}</span>
+                </div>
+                <div style={{padding:10,maxHeight:500,overflowY:"auto"}}>
+                  {(grouped[cat.key]||[]).map(a=><PlayerCard key={a.id} athlete={a} onClick={setSelectedPlayer} showScore />)}
+                  {(grouped[cat.key]||[]).length===0&&<div style={{padding:20,textAlign:"center",color:"#333",fontSize:12}}>No players</div>}
+                </div>
+              </div>
+            ))}
+            {grouped.unsorted.length>0&&<div style={{background:"#12151c",borderRadius:12,border:"1px solid #1e222b",overflow:"hidden"}}>
+              <div style={{padding:"12px 16px",background:"#1a1d24",borderBottom:"1px solid #1e222b",display:"flex",justifyContent:"space-between"}}>
+                <span style={{fontWeight:700,fontSize:14,color:"#ffa726"}}>Unsorted / Unsure</span><span style={{fontSize:12,color:"#546e7a"}}>{grouped.unsorted.length}</span>
+              </div>
+              <div style={{padding:10,maxHeight:500,overflowY:"auto"}}>{grouped.unsorted.map(a=><PlayerCard key={a.id} athlete={a} onClick={setSelectedPlayer} showScore />)}</div>
+            </div>}
+          </div>
+        </div>}
+
+        {/* TRYOUT RESULTS */}
+        {view === "tryout" && <TryoutResultsView athletes={athletes} activeAge={activeAge} onSelectPlayer={setSelectedPlayer} updateMetric={updateMetric} />}
+
+        {/* TEAM BUILDER */}
+        {view === "teams" && <div>
+          <h2 style={{fontSize:18,fontWeight:700,margin:"0 0 4px"}}>{activeAge}'s Team Builder</h2>
+          <p style={{color:"#546e7a",fontSize:13,margin:"0 0 16px"}}>Drag players from the pool into team rosters. Click any player for details, metrics, and offers.</p>
+          <div style={{marginBottom:24}}>
+            <div style={{fontSize:13,fontWeight:700,color:"#78909c",marginBottom:8,textTransform:"uppercase",letterSpacing:1}}>Available Pool ({ageAthletes.filter(a=>!a.teamAssignment).length})</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))",gap:8}}>
+              {POS_CATEGORIES.map(cat => {const l=grouped[cat.key]||[];if(!l.length)return null;return(
+                <div key={cat.key}><div style={{fontSize:11,color:"#4fc3f7",fontWeight:700,marginBottom:4,textTransform:"uppercase"}}>{cat.label} ({l.length})</div>
+                  {l.slice(0,6).map(a=><PlayerCard key={a.id} athlete={a} onClick={setSelectedPlayer} compact showScore />)}
+                  {l.length>6&&<div style={{fontSize:11,color:"#546e7a",padding:4,textAlign:"center"}}>+{l.length-6} more</div>}
+                </div>);})}
+              {grouped.unsorted.length>0&&<div><div style={{fontSize:11,color:"#ffa726",fontWeight:700,marginBottom:4,textTransform:"uppercase"}}>Unsorted ({grouped.unsorted.length})</div>
+                {grouped.unsorted.slice(0,4).map(a=><PlayerCard key={a.id} athlete={a} onClick={setSelectedPlayer} compact showScore />)}</div>}
+            </div>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(300px, 1fr))",gap:16}}>
+            {SKILL_LEVELS.map(lvl => {const key=`${activeAge}-${lvl}`;const roster=teamRosters[key]||[];const color=TEAM_COLORS[lvl];
+              const declined=roster.filter(a=>a.status==="declined");const active=roster.filter(a=>a.status!=="declined");
+              return(<div key={lvl} style={{background:TEAM_BG[lvl],borderRadius:12,border:`1px solid ${color}55`,overflow:"hidden"}}>
+                <div style={{padding:"12px 16px",background:color,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <span style={{fontWeight:800,fontSize:15,color:"#fff"}}>{activeAge} {lvl}</span>
+                  <span style={{fontSize:12,color:"#fff9",background:"#fff2",padding:"2px 8px",borderRadius:10}}>{roster.length}/12</span>
+                </div>
+                <div onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();updateAthlete(e.dataTransfer.getData("text/plain"),{teamAssignment:key});}} style={{padding:12,minHeight:150}}>
+                  {active.length===0&&declined.length===0&&<div style={{padding:30,textAlign:"center",color:"#555",fontSize:13,border:"2px dashed #333",borderRadius:8}}>Drop players here</div>}
+                  {active.map(a=><div key={a.id} style={{position:"relative"}}><PlayerCard athlete={a} onClick={setSelectedPlayer} compact showScore />
+                    <button onClick={()=>updateAthlete(a.id,{teamAssignment:null})} title="Remove" style={{position:"absolute",right:6,top:"50%",transform:"translateY(-50%)",background:"#ef535033",border:"none",borderRadius:4,color:"#ef5350",cursor:"pointer",fontSize:12,padding:"2px 6px"}}>x</button></div>)}
+                  {declined.length>0&&<div style={{marginTop:12,borderTop:"1px solid #333",paddingTop:8}}>
+                    <div style={{fontSize:11,color:"#ef5350",fontWeight:700,marginBottom:4}}>DECLINED</div>
+                    {declined.map(a=><div key={a.id} style={{position:"relative"}}><PlayerCard athlete={a} onClick={setSelectedPlayer} compact />
+                      <button onClick={()=>updateAthlete(a.id,{teamAssignment:null})} style={{position:"absolute",right:6,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#666",cursor:"pointer",fontSize:12}}>x</button></div>)}
+                  </div>}
+                </div>
+                <div style={{padding:"8px 12px",borderTop:`1px solid ${color}33`}}>
+                  <Btn small onClick={()=>{if(roster.length){roster.forEach(a=>updateAthlete(a.id,{status:a.status==="pending"?"offered":a.status}));setEmailPlayer(roster[0]);setEmailTeam(`${activeAge} ${lvl}`);}}} color={color} style={{width:"100%"}}>Send Offers ({roster.length})</Btn>
+                </div>
+              </div>);})}
+          </div>
+        </div>}
+
+        {/* ALL TEAMS */}
+        {view === "allteams" && <div>
+          <h2 style={{fontSize:18,fontWeight:700,margin:"0 0 16px"}}>All Teams Overview</h2>
+          {AGE_GROUPS.map(age => {const has=SKILL_LEVELS.some(l=>(allTeamsData[age]?.[l]||[]).length>0);if(!has)return null;
+            return(<div key={age} style={{marginBottom:24}}>
+              <h3 style={{fontSize:16,fontWeight:700,color:"#4fc3f7",margin:"0 0 12px",borderBottom:"1px solid #1e222b",paddingBottom:6}}>{age}'s</h3>
+              <div style={{display:"grid",gridTemplateColumns:`repeat(${SKILL_LEVELS.length}, 1fr)`,gap:12}}>
+                {SKILL_LEVELS.map(lvl => {const roster=allTeamsData[age]?.[lvl]||[];const cl=TEAM_COLORS[lvl];
+                  return(<div key={lvl} style={{background:"#12151c",borderRadius:10,border:`1px solid ${cl}44`,overflow:"hidden"}}>
+                    <div style={{padding:"8px 12px",background:cl,textAlign:"center"}}><span style={{fontWeight:800,fontSize:13,color:"#fff"}}>{age} {lvl}</span></div>
+                    <div style={{padding:8}}>{roster.length===0?<div style={{padding:16,textAlign:"center",color:"#444",fontSize:11}}>Empty</div>:
+                      roster.map(a=><div key={a.id} style={{padding:"4px 8px",fontSize:12,display:"flex",gap:6,alignItems:"center",borderBottom:"1px solid #1a1d2488",cursor:"pointer"}} onClick={()=>setSelectedPlayer(a)}>
+                        <span style={{color:"#4fc3f7",fontFamily:"monospace",fontSize:10,minWidth:24}}>{a.to}</span>
+                        <span style={{flex:1}}>{a.first} {a.last}</span>
+                        <Badge color="#78909c">{a.coachPos||posAbbr(a.primaryPos)}</Badge>
+                        <StatusBadge status={a.status}/></div>)}</div>
+                  </div>);})}
+              </div></div>);})}
+          {!AGE_GROUPS.some(age=>SKILL_LEVELS.some(l=>(allTeamsData[age]?.[l]||[]).length>0))&&
+            <div style={{padding:60,textAlign:"center",color:"#444"}}><div style={{fontSize:15}}>No teams assembled yet. Use Team Builder to drag players into rosters.</div></div>}
+        </div>}
+
         {view === "hidden" && <HiddenView athletes={athletes} onUnhide={unhideAthlete} onSelect={setSelectedPlayer} />}
       </div>
 
-      <AthleteModal athlete={selectedPlayer} onClose={()=>setSelectedPlayer(null)} onChange={updateAthlete} onHide={setHidePlayer} onUnhide={unhideAthlete} onEmail={setEmailPlayer} />
+      <PlayerDetail athlete={selectedPlayer} onClose={()=>setSelectedPlayer(null)} canEditAll={true}
+        onStatusChange={(id,s)=>updateAthlete(id,{status:s})} onCoachPos={(id,p)=>updateAthlete(id,{coachPos:p})}
+        onEmail={a=>{setSelectedPlayer(null);setEmailPlayer(a);}} onHide={a=>{setSelectedPlayer(null);setHidePlayer(a);}}
+        onUnhide={unhideAthlete} onMetricChange={updateMetric} />
       <EmailModal athlete={emailPlayer} team={emailTeam} onClose={()=>{setEmailPlayer(null);setEmailTeam("");}} onSend={handleSendEmail} />
       <HideModal athlete={hidePlayer} onClose={()=>setHidePlayer(null)} onHide={hideAthlete} />
       {showImport && <CSVImportModal onClose={()=>setShowImport(false)} onImport={importAthletes} />}
