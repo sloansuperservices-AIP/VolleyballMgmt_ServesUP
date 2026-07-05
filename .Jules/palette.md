@@ -17,3 +17,7 @@
 ## 2026-06-30 - [Global Escape Key for Modal Dismissal]
 **Learning:** In applications using multiple React-based modals/overlays (AthleteModal, EmailModal, etc.), users intuitively expect the 'Escape' key to dismiss the active view. Implementing a global event listener in the parent component is a high-impact micro-UX win that significantly improves accessibility for keyboard and power users.
 **Action:** Always implement a global 'Escape' key handler in the main application component when using custom modal systems to ensure a standard and accessible dismissal experience.
+
+## 2026-07-04 - [Consolidated Interaction Handlers and Semantic Cleanup]
+**Learning:** Repetitive and broken interaction scripts (like duplicated ripple effects) and malformed HTML (nested redundant tags) not only bloat the codebase but also break accessibility. A single, robust interaction handler that provides centered visual feedback for keyboard triggers ensures "delight" is accessible to everyone.
+**Action:** Always audit the DOM for tag duplication and consolidate multiple script blocks into unified handlers with keyboard parity.
