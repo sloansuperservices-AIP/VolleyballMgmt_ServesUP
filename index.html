@@ -322,9 +322,17 @@
     border-radius: 14px; padding: 16px 18px;
     cursor: pointer; display: flex; align-items: center; gap: 12px;
     transition: all .2s;
+    position: relative; overflow: hidden;
+  }
+  .qbtn::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 15% 15%, rgba(240,165,0,0.05), transparent 60%);
+    opacity: 0; transition: opacity .3s;
   }
   .qbtn:hover { border-color: rgba(255,255,255,.14); transform: translateY(-2px); background: var(--surface2); }
-  .qi { font-size: 20px; flex-shrink: 0; }
+  .qbtn:hover::before, .qbtn:focus-within::before { opacity: 1; }
+  .qi { font-size: 20px; flex-shrink: 0; position: relative; z-index: 1; }
+  .ql, .qs { position: relative; z-index: 1; }
   .ql { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.35; }
   .qs { font-size: 10px; color: var(--muted); margin-top: 1px; }
 
@@ -445,7 +453,7 @@
     </div>
     <div class="kpi" style="--kc:var(--purple)">
       <div class="kpi-label">VOLLEY Agent</div>
-      <div class="kpi-val" style="font-size:22px;padding-top:6px;color:var(--green)"><span role="img" aria-label="Online Indicator">●</span> Online</div>
+      <div class="kpi-val" style="font-size:22px;padding-top:6px;color:var(--green);display:flex;align-items:center;gap:8px;"><div class="dot-pulse" role="img" aria-label="Online Indicator" style="width:10px;height:10px;"></div>Online</div>
       <div class="kpi-sub">Front desk &amp; email active</div>
     </div>
   </div>
@@ -622,28 +630,16 @@
     const y = isKeyboard ? rect.height / 2 : e.clientY - rect.top;
 
     const r = document.createElement('span');
-    const rect = element.getBoundingClientRect();
-    const isKeyboard = e.clientX === undefined || (e.clientX === 0 && e.clientY === 0);
-    const x = isKeyboard ? rect.width / 2 : e.clientX - rect.left;
-    const y = isKeyboard ? rect.height / 2 : e.clientY - rect.top;
     r.style.cssText = `position:absolute;border-radius:50%;width:120px;height:120px;
       background:rgba(255,255,255,0.1);transform:translate(-50%,-50%) scale(0);
       animation:ripple .55s linear;pointer-events:none;
       left:${x}px; top:${y}px;`;
 
-    this.style.position = 'relative';
-    this.style.overflow = 'hidden';
     this.appendChild(r);
     setTimeout(() => r.remove(), 560);
   }
 
   // Interaction handlers for cards and buttons
-  document.querySelectorAll('.app-card, .qbtn').forEach(card => {
-    card.addEventListener('click', function(e) {
-      createRipple(e, this);
-    });
-
-    card.addEventListener('keydown', function(e) {
   document.querySelectorAll('.app-card, .qbtn').forEach(el => {
     el.addEventListener('click', triggerRipple);
     el.addEventListener('keydown', function(e) {
