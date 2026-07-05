@@ -475,7 +475,7 @@
           <div class="arrow-btn"><span aria-hidden="true">→</span></div>
         </div>
       </div>
-    </div>
+    </a>
 
     <!-- VOLLEY AI -->
     <a href="volley/" class="app-card col-4" style="--cg:rgba(124,58,237,0.12); --ci-bg:rgba(124,58,237,0.1); --ci-bd:rgba(124,58,237,0.25); --ab-bg:rgba(124,58,237,0.15); --ab-bd:rgba(124,58,237,0.3);">
@@ -492,7 +492,7 @@
         <div class="cstatus" style="--cs-c:var(--green)"><div class="d"></div>Online &amp; Listening</div>
         <div class="arrow-btn"><span aria-hidden="true">→</span></div>
       </div>
-    </div>
+    </a>
 
     <!-- DIBS -->
     <a href="dibs/" class="app-card col-6" style="--cg:rgba(29,184,110,0.1); --ci-bg:rgba(29,184,110,0.1); --ci-bd:rgba(29,184,110,0.25); --ab-bg:rgba(29,184,110,0.15); --ab-bd:rgba(29,184,110,0.3);">
@@ -510,7 +510,7 @@
         <div class="cstatus" style="--cs-c:#4ade80"><div class="d"></div>Shifts Available</div>
         <div class="arrow-btn"><span aria-hidden="true">→</span></div>
       </div>
-    </div>
+    </a>
 
     <!-- TOURNAMENTS -->
     <a href="tournaments/" class="app-card col-6" style="--cg:rgba(224,92,26,0.1); --ci-bg:rgba(224,92,26,0.1); --ci-bd:rgba(224,92,26,0.25); --ab-bg:rgba(224,92,26,0.15); --ab-bd:rgba(224,92,26,0.3);">
@@ -529,7 +529,7 @@
         <div class="cstatus" style="--cs-c:#ff845a"><div class="d"></div>Season Active</div>
         <div class="arrow-btn"><span aria-hidden="true">→</span></div>
       </div>
-    </div>
+    </a>
 
     <!-- STRATEGIC OBJECTIVES -->
     <a href="strategic-objectives/" class="app-card wide col-12" style="--cg:rgba(14,165,160,0.08); --ci-bg:rgba(14,165,160,0.1); --ci-bd:rgba(14,165,160,0.25); --ab-bg:rgba(14,165,160,0.15); --ab-bd:rgba(14,165,160,0.3);">
@@ -551,7 +551,7 @@
           <div class="arrow-btn"><span aria-hidden="true">→</span></div>
         </div>
       </div>
-    </div>
+    </a>
 
   </div>
 
@@ -615,7 +615,12 @@
   }
   tick(); setInterval(tick, 15000);
 
-  function createRipple(e, element) {
+  function triggerRipple(e) {
+    const rect = this.getBoundingClientRect();
+    const isKeyboard = (e.clientX === undefined || (e.clientX === 0 && e.clientY === 0));
+    const x = isKeyboard ? rect.width / 2 : e.clientX - rect.left;
+    const y = isKeyboard ? rect.height / 2 : e.clientY - rect.top;
+
     const r = document.createElement('span');
     const rect = element.getBoundingClientRect();
     const isKeyboard = e.clientX === undefined || (e.clientX === 0 && e.clientY === 0);
@@ -625,8 +630,11 @@
       background:rgba(255,255,255,0.1);transform:translate(-50%,-50%) scale(0);
       animation:ripple .55s linear;pointer-events:none;
       left:${x}px; top:${y}px;`;
-    element.style.position='relative'; element.style.overflow='hidden';
-    element.appendChild(r); setTimeout(()=>r.remove(),560);
+
+    this.style.position = 'relative';
+    this.style.overflow = 'hidden';
+    this.appendChild(r);
+    setTimeout(() => r.remove(), 560);
   }
 
   // Interaction handlers for cards and buttons
@@ -636,6 +644,9 @@
     });
 
     card.addEventListener('keydown', function(e) {
+  document.querySelectorAll('.app-card, .qbtn').forEach(el => {
+    el.addEventListener('click', triggerRipple);
+    el.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         this.click();
