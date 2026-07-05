@@ -8,6 +8,22 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--accent);
+    color: #000;
+    padding: 8px;
+    z-index: 1000;
+    transition: top 0.2s;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .skip-link:focus {
+    top: 0;
+  }
+
   :root {
     --bg:        #080c14;
     --surface:   #0e1422;
@@ -210,7 +226,6 @@
   .app-card:active { transform: translateY(-1px) scale(.99); }
 
   .app-card:focus-within { transform: translateY(-5px) scale(1.01); border-color: rgba(255,255,255,0.14); box-shadow: 0 24px 64px rgba(0,0,0,.55); outline: none; }
-  .app-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
   .app-card:hover::before, .app-card:focus-within::before { opacity: 1; }
   .app-card:active { transform: translateY(-1px) scale(.99); }
 
@@ -219,6 +234,7 @@
     outline: 2px solid var(--accent);
     outline-offset: 4px;
     box-shadow: 0 0 0 8px rgba(240,165,0,0.15);
+    transform: translateY(-5px);
   }
 
   /* Large horizontal card */
@@ -295,12 +311,6 @@
     color: var(--accent); transform: translateX(4px);
   }
 
-  .app-card:focus-visible, .qbtn:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 4px;
-    border-color: var(--accent);
-  }
-
   /* ──────────────────── QUICK ACCESS ──────────────────── */
   .quick-grid {
     display: grid; grid-template-columns: repeat(4,1fr);
@@ -314,7 +324,6 @@
     transition: all .2s;
   }
   .qbtn:hover { border-color: rgba(255,255,255,.14); transform: translateY(-2px); background: var(--surface2); }
-  .qbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; transform: translateY(-2px); }
   .qi { font-size: 20px; flex-shrink: 0; }
   .ql { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.35; }
   .qs { font-size: 10px; color: var(--muted); margin-top: 1px; }
@@ -380,6 +389,7 @@
 </style>
 </head>
 <body>
+<a href="#main" class="skip-link">Skip to Main Content</a>
 <div class="wrap">
 
   <!-- ── HEADER ───────────────────────────────────── -->
@@ -435,13 +445,13 @@
     </div>
     <div class="kpi" style="--kc:var(--purple)">
       <div class="kpi-label">VOLLEY Agent</div>
-      <div class="kpi-val" style="font-size:22px;padding-top:6px;color:var(--green)">● Online</div>
+      <div class="kpi-val" style="font-size:22px;padding-top:6px;color:var(--green)"><span role="img" aria-label="Online Indicator">●</span> Online</div>
       <div class="kpi-sub">Front desk &amp; email active</div>
     </div>
   </div>
 
   <!-- ── CORE APPS ─────────────────────────────────── -->
-  <div class="sec-lbl">Core Applications</div>
+  <div id="main" class="sec-lbl">Core Applications</div>
 
   <div class="app-grid">
 
@@ -612,6 +622,10 @@
     const y = isKeyboard ? rect.height / 2 : e.clientY - rect.top;
 
     const r = document.createElement('span');
+    const rect = element.getBoundingClientRect();
+    const isKeyboard = e.clientX === undefined || (e.clientX === 0 && e.clientY === 0);
+    const x = isKeyboard ? rect.width / 2 : e.clientX - rect.left;
+    const y = isKeyboard ? rect.height / 2 : e.clientY - rect.top;
     r.style.cssText = `position:absolute;border-radius:50%;width:120px;height:120px;
       background:rgba(255,255,255,0.1);transform:translate(-50%,-50%) scale(0);
       animation:ripple .55s linear;pointer-events:none;
@@ -623,6 +637,13 @@
     setTimeout(() => r.remove(), 560);
   }
 
+  // Interaction handlers for cards and buttons
+  document.querySelectorAll('.app-card, .qbtn').forEach(card => {
+    card.addEventListener('click', function(e) {
+      createRipple(e, this);
+    });
+
+    card.addEventListener('keydown', function(e) {
   document.querySelectorAll('.app-card, .qbtn').forEach(el => {
     el.addEventListener('click', triggerRipple);
     el.addEventListener('keydown', function(e) {
