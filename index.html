@@ -608,54 +608,75 @@
 <script>
   function tick() {
     const n = new Date();
-    document.getElementById('clock').textContent =
-      n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-    document.getElementById('datestr').textContent =
-      n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+    const clockEl = document.getElementById('clock');
+    const dateEl = document.getElementById('datestr');
+    if (clockEl) clockEl.textContent = n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    if (dateEl) dateEl.textContent = n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
   }
   tick(); setInterval(tick, 15000);
 
-  function triggerRipple(e) {
-    const rect = this.getBoundingClientRect();
+  /**
+   * Creates a visual ripple effect on an element.
+   * @param {MouseEvent|KeyboardEvent} e - The triggering event.
+   */
+  function createRipple(e) {
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
+
+    // Calculate ripple position
+    // If it's a keyboard event or no coordinates (e.g. synthetic click), center it.
     const isKeyboard = (e.clientX === undefined || (e.clientX === 0 && e.clientY === 0));
     const x = isKeyboard ? rect.width / 2 : e.clientX - rect.left;
     const y = isKeyboard ? rect.height / 2 : e.clientY - rect.top;
 
-    const r = document.createElement('span');
-    const rect = element.getBoundingClientRect();
-    const isKeyboard = e.clientX === undefined || (e.clientX === 0 && e.clientY === 0);
-    const x = isKeyboard ? rect.width / 2 : e.clientX - rect.left;
-    const y = isKeyboard ? rect.height / 2 : e.clientY - rect.top;
-    r.style.cssText = `position:absolute;border-radius:50%;width:120px;height:120px;
-      background:rgba(255,255,255,0.1);transform:translate(-50%,-50%) scale(0);
-      animation:ripple .55s linear;pointer-events:none;
-      left:${x}px; top:${y}px;`;
+    const ripple = document.createElement('span');
+    ripple.style.cssText = `
+      position: absolute;
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      background: rgba(255,255,255,0.15);
+      transform: translate(-50%,-50%) scale(0);
+      animation: ripple 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      left: ${x}px;
+      top: ${y}px;
+      z-index: 10;
+    `;
 
-    this.style.position = 'relative';
-    this.style.overflow = 'hidden';
-    this.appendChild(r);
-    setTimeout(() => r.remove(), 560);
+    // Ensure container is ready for absolute positioning
+    const originalPosition = getComputedStyle(el).position;
+    if (originalPosition === 'static') el.style.position = 'relative';
+    el.style.overflow = 'hidden';
+
+    el.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 650);
   }
 
-  // Interaction handlers for cards and buttons
-  document.querySelectorAll('.app-card, .qbtn').forEach(card => {
-    card.addEventListener('click', function(e) {
-      createRipple(e, this);
-    });
-
-    card.addEventListener('keydown', function(e) {
+  // Setup interaction listeners for cards and buttons
   document.querySelectorAll('.app-card, .qbtn').forEach(el => {
-    el.addEventListener('click', triggerRipple);
+    // Primary interaction (Mouse click or Native Enter on links)
+    el.addEventListener('click', createRipple);
+
+    // Keyboard accessibility for non-native button elements (qbtn) and Space bar
     el.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        this.click();
+        // Space should always trigger the element and avoid scrolling
+        if (e.key === ' ') e.preventDefault();
+
+        // If it's a native <a> tag, Enter already works.
+        // If it's a custom role="button", we need to manually trigger click for Enter.
+        if (e.key === ' ' || (e.key === 'Enter' && this.tagName !== 'A')) {
+          if (e.key === 'Enter') e.preventDefault();
+          this.click();
+        }
       }
     });
   });
 
+  // Inject animation keyframes
   const style = document.createElement('style');
-  style.textContent = '@keyframes ripple{to{transform:translate(-50%,-50%) scale(4);opacity:0}}';
+  style.textContent = '@keyframes ripple { to { transform: translate(-50%,-50%) scale(4); opacity: 0; } }';
   document.head.appendChild(style);
 </script>
 </body>
