@@ -451,7 +451,7 @@
   </div>
 
   <!-- ── CORE APPS ─────────────────────────────────── -->
-  <div id="main" class="sec-lbl">Core Applications</div>
+  <div id="main" class="sec-lbl" tabindex="-1">Core Applications</div>
 
   <div class="app-grid">
 
@@ -622,10 +622,6 @@
     const y = isKeyboard ? rect.height / 2 : e.clientY - rect.top;
 
     const r = document.createElement('span');
-    const rect = element.getBoundingClientRect();
-    const isKeyboard = e.clientX === undefined || (e.clientX === 0 && e.clientY === 0);
-    const x = isKeyboard ? rect.width / 2 : e.clientX - rect.left;
-    const y = isKeyboard ? rect.height / 2 : e.clientY - rect.top;
     r.style.cssText = `position:absolute;border-radius:50%;width:120px;height:120px;
       background:rgba(255,255,255,0.1);transform:translate(-50%,-50%) scale(0);
       animation:ripple .55s linear;pointer-events:none;
@@ -638,12 +634,6 @@
   }
 
   // Interaction handlers for cards and buttons
-  document.querySelectorAll('.app-card, .qbtn').forEach(card => {
-    card.addEventListener('click', function(e) {
-      createRipple(e, this);
-    });
-
-    card.addEventListener('keydown', function(e) {
   document.querySelectorAll('.app-card, .qbtn').forEach(el => {
     el.addEventListener('click', triggerRipple);
     el.addEventListener('keydown', function(e) {
