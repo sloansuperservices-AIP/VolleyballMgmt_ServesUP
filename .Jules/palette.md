@@ -18,6 +18,6 @@
 **Learning:** In applications using multiple React-based modals/overlays (AthleteModal, EmailModal, etc.), users intuitively expect the 'Escape' key to dismiss the active view. Implementing a global event listener in the parent component is a high-impact micro-UX win that significantly improves accessibility for keyboard and power users.
 **Action:** Always implement a global 'Escape' key handler in the main application component when using custom modal systems to ensure a standard and accessible dismissal experience.
 
-## 2026-07-04 - [Consolidated Interaction Handlers and Semantic Cleanup]
-**Learning:** Repetitive and broken interaction scripts (like duplicated ripple effects) and malformed HTML (nested redundant tags) not only bloat the codebase but also break accessibility. A single, robust interaction handler that provides centered visual feedback for keyboard triggers ensures "delight" is accessible to everyone.
-**Action:** Always audit the DOM for tag duplication and consolidate multiple script blocks into unified handlers with keyboard parity.
+## 2026-07-01 - [Local Persistence for High-Stakes Events]
+**Learning:** In "no-build" React environments used for live events (like tryouts), relying on state alone is risky. Implementing transparent `localStorage` persistence ensures data reliability during intermittent connectivity or accidental refreshes without requiring a full backend.
+**Action:** Standardize a `loadLocal`/`useEffect` pattern for data persistence in all standalone utility modules.

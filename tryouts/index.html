@@ -53,7 +53,9 @@ const STATIONS = [
   {key:"checkin", label:"Check-In",        pin:"9999", metrics:[], isCheckin:true},
   {key:"station1",label:"Station 1: Physical", pin:"1111", metrics:["Height (in)","Reach (in)","Vertical (in)"]},
   {key:"station2",label:"Station 2: Agility",  pin:"2222", metrics:["Shuttle Run 1","Shuttle Run 2","Shuttle Run 3"]},
-  {key:"station3",label:"Station 3: Skills",   pin:"3333", metrics:["Skill 1","Skill 2","Skill 3"]},
+  {key:"station3",label:"Station 3: Drills",   pin:"3333", metrics:["Drill 1","Drill 2","Drill 3"]},
+  {key:"station4",label:"Station 4: Serving",  pin:"4444", metrics:["Serve 1","Serve 2","Serve 3"]},
+  {key:"station5",label:"Station 5: Setting",  pin:"5555", metrics:["Set 1","Set 2","Set 3"]},
 ];
 const HC_PIN = "0000";
 const AGE_GROUPS = ["12","13","14","15","16","17","18"];
@@ -140,7 +142,7 @@ function stationAvg(metrics,key){
 }
 function totalScore(metrics){
   let s=0,c=0;
-  ["station1","station2","station3"].forEach(k=>{const a=stationAvg(metrics,k);if(a!==null){s+=a;c++;}});
+  ["station1","station2","station3","station4","station5"].forEach(k=>{const a=stationAvg(metrics,k);if(a!==null){s+=a;c++;}});
   return c>0?(s/c).toFixed(1):null;
 }
 function initAthletes(raw){
@@ -241,6 +243,8 @@ function Login({onLogin}){
             <div>Station 1: <span style={{color:"#f0a500",fontFamily:"monospace"}}>1111</span></div>
             <div>Station 2: <span style={{color:"#f0a500",fontFamily:"monospace"}}>2222</span></div>
             <div>Station 3: <span style={{color:"#f0a500",fontFamily:"monospace"}}>3333</span></div>
+            <div>Station 4: <span style={{color:"#f0a500",fontFamily:"monospace"}}>4444</span></div>
+            <div>Station 5: <span style={{color:"#f0a500",fontFamily:"monospace"}}>5555</span></div>
           </div>
           <div>Head Coach: <span style={{color:"#ef5350",fontFamily:"monospace"}}>0000</span></div>
         </div>
@@ -905,6 +909,7 @@ function AllRegView({athletes,onSelect,onArrive,onAddWalkup}){
         <Badge c="#78909c">{list.length} Total</Badge>
         <Btn sm onClick={()=>setAddingWalkup(p=>!p)} color="#f0a500">+ Add Walkup</Btn>
         <Btn sm onClick={()=>exportAllRegCSV(athletes)} color="#4fc3f7" outline>Export CSV</Btn>
+        <Btn sm onClick={()=>{if(confirm("Reset all tryout data? This cannot be undone.")){ localStorage.removeItem("midtn_tryout_v2"); window.location.reload(); }}} color="#ef5350" outline>Reset Data</Btn>
       </div>
 
       {addingWalkup&&(
@@ -1112,7 +1117,10 @@ function HiddenView({athletes, onUnhide, onSelect}) {
 }
 function TryoutApp() {
   const [user, setUser] = useState(null); // {role, label, station}
-  const [athletes, setAthletes] = useState(() => initAthletes(RAW));
+  const [athletes, setAthletes] = useState(() => {
+    const saved = loadLocal();
+    return saved || initAthletes(RAW);
+  });
   const [activeAge, setActiveAge] = useState("12");
   const [view, setView] = useState("allreg");
   const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -1138,6 +1146,11 @@ function TryoutApp() {
     if (athlete.email) { window.open(`mailto:${athlete.email}?subject=${encodeURIComponent(`Mid TN VBC - Offer for ${athlete.first} ${athlete.last}`)}&body=${encodeURIComponent(body)}`, "_blank"); }
     else { navigator.clipboard?.writeText(body); }
   }, [updateAthlete]);
+
+  // Auto-save on change
+  useEffect(() => {
+    saveLocal(athletes);
+  }, [athletes]);
 
   // Handle Escape key to close modals
   useEffect(() => {

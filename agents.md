@@ -71,7 +71,7 @@ Hosted on GitHub Pages.
 |--------|------|--------|
 | Hub Dashboard | index.html | ✅ Complete |
 | Tryouts | tryouts/index.html | ✅ Complete |
-| DIBS | dibs/dibs.jsx | 🔧 React component, needs HTML wrapper |
+| DIBS | dibs/index.html | ✅ Complete |
 | Tournaments | tournaments/ | 🗂 README only |
 | VOLLEY Agent | volley/ | 🗂 README only |
 | Strategic Objectives | strategic-objectives/ | 🗂 README only |
@@ -103,8 +103,7 @@ Each module that needs a database uses this pattern:
 5. Settings modal in each module's bottom bar for URL entry + ping test
 
 ## Priority Task Queue (for Jules)
-1. Convert `dibs/dibs.jsx` into `dibs/index.html` (self-contained, matches hub design)
-2. Build `tournaments/index.html` scaffold with hosted/travel sections
+1. Build `tournaments/index.html` scaffold with hosted/travel sections
 3. Build `strategic-objectives/index.html` with task board from Club_Task_Assignment_List data
 4. Build `volley/index.html` front desk kiosk interface
 5. Update hub `index.html` so all 5 app tiles link to their module `/module/index.html`

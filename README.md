@@ -17,7 +17,7 @@
 |--------|------|--------|-------------|
 | 🏠 **Hub Dashboard** | `/index.html` | ✅ Live | Central navigation, KPIs, quick access |
 | 🎯 **Tryouts** | `/tryouts/` | ✅ Live | Registration, eval scoring, team builder, offers |
-| 💼 **DIBS** | `/dibs/` | 🔧 Building | Athlete Work/Play Program |
+| 💼 **DIBS** | `/dibs/` | ✅ Live | Athlete Work/Play Program |
 | 🏆 **Tournaments** | `/tournaments/` | 🗂 Scaffolded | Hosted events & travel management |
 | 🤖 **VOLLEY Agent** | `/volley/` | 🗂 Scaffolded | Club AI — front desk, website, email |
 | 🗺️ **Strategic Objectives** | `/strategic-objectives/` | 🗂 Scaffolded | Roles, OKRs, task board |
@@ -80,7 +80,7 @@ All modules are **self-contained HTML files** — no build step, no server, no f
 ### Active Build
 - [x] Hub Dashboard
 - [x] Tryouts Manager (full)
-- [ ] DIBS Work/Play Program
+- [x] DIBS Work/Play Program
 - [ ] Tournament Manager
 - [ ] VOLLEY AI Agent
 - [ ] Strategic Objectives
