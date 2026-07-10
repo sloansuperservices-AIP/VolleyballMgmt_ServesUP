@@ -21,3 +21,7 @@
 ## 2026-07-04 - [Consolidated Interaction Handlers and Semantic Cleanup]
 **Learning:** Repetitive and broken interaction scripts (like duplicated ripple effects) and malformed HTML (nested redundant tags) not only bloat the codebase but also break accessibility. A single, robust interaction handler that provides centered visual feedback for keyboard triggers ensures "delight" is accessible to everyone.
 **Action:** Always audit the DOM for tag duplication and consolidate multiple script blocks into unified handlers with keyboard parity.
+
+## 2026-07-05 - [Visual Consistency via Component Reuse]
+**Learning:** Using existing design system components (like pulsing dots) for status indicators across different sections (KPIs vs. Header) improves visual cohesion and reinforces the "Live" system aesthetic. Decorative elements should be marked with aria-hidden or proper labels to avoid screen reader clutter.
+**Action:** Reuse existing animation classes and design tokens for new UI elements to maintain system consistency.
