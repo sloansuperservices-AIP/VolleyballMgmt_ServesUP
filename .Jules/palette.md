@@ -1,3 +1,27 @@
-## 2026-07-06 - Fixing Dashboard Interaction and Keyboard Accessibility
-**Learning:** Dashboard interactions like "ripple effects" can easily break if event listeners are incorrectly nested or if function naming is inconsistent. Furthermore, custom interactive elements (like `.qbtn` divs) must have `tabindex="0"` and explicit keyboard listeners for both `Enter` and `Space` to be fully accessible, as native behaviors only apply to `<a>` and `<button>` tags.
-**Action:** Always verify that custom interactive components are keyboard-reachable and respond to standard activation keys. Use `event.currentTarget` for more robust ripple origin calculation in delegated or multi-element listeners.
+# Palette's Journal - Mid TN Volleyball Club Management Platform
+
+## 2026-06-27 - [Keyboard Accessibility for Custom Interactive Elements]
+**Learning:** Custom interactive elements like cards and quick-access buttons often lack native focus states and keyboard event listeners, making the interface inaccessible to non-mouse users.
+**Action:** Always ensure custom clickable elements have `role="button"`, `tabindex="0"`, and both click and keydown (Enter/Space) event listeners.
+## 2026-06-26 - [Accessibility & Micro-UX in Tryouts]
+**Learning:** Emojis are frequently used as status indicators (🔒, ⚠️, 📝) in this app. Without proper ARIA roles and labels, these are invisible or confusing to screen reader users. Also, "Copy Text" buttons benefit greatly from immediate visual state changes to confirm action.
+**Action:** Always wrap status-bearing emojis in <span role="img" aria-label="..."> and implement a temporary state change for copy-to-clipboard buttons.
+
+## 2026-06-27 - [Visual and Audio Feedback for Copy Actions]
+**Learning:** Users appreciate immediate confirmation when copying text to the clipboard. A simple state change on the button (e.g., "Copy Text" -> "✓ Copied!") provides clear feedback. Adding `aria-live="polite"` ensures screen reader users also receive this confirmation.
+**Action:** Implement 2-second state feedback with `aria-live="polite"` for all copy-to-clipboard buttons.
+## 2026-06-29 - [Keyboard Parity for Card-based Hubs]
+**Learning:** High-density dashboards using <div> cards for navigation are completely inaccessible to keyboard users unless explicitly given role="button" and tabindex="0". Furthermore, visual feedback like ripple effects should be programmatically centered when triggered by keyboard to maintain "delight" consistency.
+**Action:** Always audit interactive <div> elements for keyboard parity; implement :focus-visible for clean aesthetics and ensure JS-driven visual feedback handles coordinate-less triggers.
+
+## 2026-06-30 - [Global Escape Key for Modal Dismissal]
+**Learning:** In applications using multiple React-based modals/overlays (AthleteModal, EmailModal, etc.), users intuitively expect the 'Escape' key to dismiss the active view. Implementing a global event listener in the parent component is a high-impact micro-UX win that significantly improves accessibility for keyboard and power users.
+**Action:** Always implement a global 'Escape' key handler in the main application component when using custom modal systems to ensure a standard and accessible dismissal experience.
+
+## 2026-07-04 - [Consolidated Interaction Handlers and Semantic Cleanup]
+**Learning:** Repetitive and broken interaction scripts (like duplicated ripple effects) and malformed HTML (nested redundant tags) not only bloat the codebase but also break accessibility. A single, robust interaction handler that provides centered visual feedback for keyboard triggers ensures "delight" is accessible to everyone.
+**Action:** Always audit the DOM for tag duplication and consolidate multiple script blocks into unified handlers with keyboard parity.
+
+## 2026-07-05 - [Visual Consistency via Component Reuse]
+**Learning:** Using existing design system components (like pulsing dots) for status indicators across different sections (KPIs vs. Header) improves visual cohesion and reinforces the "Live" system aesthetic. Decorative elements should be marked with aria-hidden or proper labels to avoid screen reader clutter.
+**Action:** Reuse existing animation classes and design tokens for new UI elements to maintain system consistency.

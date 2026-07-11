@@ -48,12 +48,13 @@ const {useState,useEffect,useMemo,useRef,useCallback} = React;
 // ── CONFIG ─────────────────────────────────────────────────────────
 const LOCAL_KEY = "midtn_tryout_v2";
 const SCRIPT_KEY = "midtn_script_url";
+const STAFF_PIN = "1111";  // single staff PIN → shows station tile selection
 
 const STATIONS = [
-  {key:"checkin", label:"Check-In",        pin:"9999", metrics:[], isCheckin:true},
-  {key:"station1",label:"Station 1: Physical", pin:"1111", metrics:["Height (in)","Reach (in)","Vertical (in)"]},
-  {key:"station2",label:"Station 2: Agility",  pin:"2222", metrics:["Shuttle Run 1","Shuttle Run 2","Shuttle Run 3"]},
-  {key:"station3",label:"Station 3: Skills",   pin:"3333", metrics:["Skill 1","Skill 2","Skill 3"]},
+  {key:"checkin", label:"Check-In",           icon:"✅", color:"#26c6da", metrics:[], isCheckin:true},
+  {key:"station1",label:"Station 1: Physical", icon:"📏", color:"#f0a500", metrics:["Height (in)","Reach (in)","Vertical (in)"]},
+  {key:"station2",label:"Station 2: Agility",  icon:"⚡", color:"#ab47bc", metrics:["Shuttle Run 1","Shuttle Run 2","Shuttle Run 3"]},
+  {key:"station3",label:"Station 3: Skills",   icon:"🏐", color:"#66bb6a", metrics:["Skill 1","Skill 2","Skill 3"]},
 ];
 const HC_PIN = "0000";
 const AGE_GROUPS = ["12","13","14","15","16","17","18"];
@@ -204,24 +205,17 @@ function Badge({c="#4fc3f7",bg,children,sm}){
 }
 function StatusBadge({status}){
   const m={pending:{c:"#78909c",l:"Pending"},arrived:{c:"#26c6da",l:"Arrived"},contacted:{c:"#ffa726",l:"Contacted"},offered:{c:"#42a5f5",l:"Offered"},accepted:{c:"#66bb6a",l:"Accepted"},declined:{c:"#ef5350",l:"Declined"},info_requested:{c:"#ab47bc",l:"Info Req."}};
-  const s=m[status]||m.pending;
-  return <Badge c={s.c}>{s.l}</Badge>;
-}
-function Btn({children,onClick,color="#1565c0",outline,sm,disabled,style:sx,danger, ...props}){
-  const c=danger?"#ef5350":color;
-  return <button onClick={onClick} disabled={disabled} {...props} style={{padding:sm?"4px 10px":"8px 16px",background:outline?"transparent":c,border:outline?`1px solid ${c}`:"none",borderRadius:6,color:outline?c:"#fff",cursor:disabled?"not-allowed":"pointer",fontSize:sm?11:13,fontWeight:600,opacity:disabled?.5:1,transition:"all .15s",whiteSpace:"nowrap",...sx}}>{children}</button>;
-}
-
-// ── LOGIN ───────────────────────────────────────────────────────────
+  cons// ── LOGIN ─────────────────────────────────────────────────────────
 function Login({onLogin}){
   const [pin,setPin]=useState("");
   const [err,setErr]=useState("");
+  const [showTiles,setShowTiles]=useState(false);
   const go=()=>{
     if(pin===HC_PIN){onLogin({role:"hc"});return;}
-    const s=STATIONS.find(x=>x.pin===pin);
-    if(s){onLogin({role:"station",station:s.key,label:s.label,isCheckin:s.isCheckin});return;}
+    if(pin===STAFF_PIN){setShowTiles(true);setPin("");setErr("");return;}
     setErr("Invalid PIN");setPin("");
   };
+  if(showTiles) return <StationTileSelect onLogin={onLogin} onBack={()=>setShowTiles(false)}/>;
   return(
     <div style={{minHeight:"100vh",background:"#0d1017",display:"flex",alignItems:"center",justifyContent:"center"}}>
       <div style={{background:"#1a1d24",border:"1px solid #2a2e38",borderRadius:16,padding:40,width:380,textAlign:"center"}}>
@@ -230,31 +224,73 @@ function Login({onLogin}){
         <p style={{color:"#78909c",fontSize:13,margin:"0 0 6px"}}>Tryout Manager v2 · 2026–2027</p>
         <a href="../" style={{display:"block",fontSize:12,color:"#4fc3f7",marginBottom:24}}>← Back to Hub</a>
         <input value={pin} onChange={e=>{setPin(e.target.value);setErr("");}} onKeyDown={e=>e.key==="Enter"&&go()}
-          type="password" placeholder="Enter PIN" maxLength={6}
-          style={{width:"100%",padding:"12px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:8,color:"#e8eaed",fontSize:20,textAlign:"center",letterSpacing:10,marginBottom:10}}/>
+          type="password" placeholder="Enter PIN" maxLength={6} id="pin-input"
+          style={{width:"100%",padding:"12px",background:"#12151c",border:`1px solid ${err?"#ef5350":"#2a2e38"}`,borderRadius:8,color:"#e8eaed",fontSize:20,textAlign:"center",letterSpacing:10,marginBottom:10}}/>
         {err&&<p style={{color:"#ef5350",fontSize:13,margin:"0 0 10px"}}>{err}</p>}
-        <button onClick={go} style={{width:"100%",padding:12,background:"#f0a500",border:"none",borderRadius:8,color:"#000",fontSize:15,fontWeight:800,cursor:"pointer",marginBottom:20}}>Log In →</button>
+        <button onClick={go} id="pin-submit" style={{width:"100%",padding:12,background:"#f0a500",border:"none",borderRadius:8,color:"#000",fontSize:15,fontWeight:800,cursor:"pointer",marginBottom:20}}>Log In →</button>
         <div style={{borderTop:"1px solid #2a2e38",paddingTop:14,fontSize:11,color:"#546e7a"}}>
-          <div style={{fontWeight:700,marginBottom:8,textTransform:"uppercase",letterSpacing:1}}>PINs</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,textAlign:"left",marginBottom:6}}>
-            <div>Check-In: <span style={{color:"#26c6da",fontFamily:"monospace"}}>9999</span></div>
-            <div>Station 1: <span style={{color:"#f0a500",fontFamily:"monospace"}}>1111</span></div>
-            <div>Station 2: <span style={{color:"#f0a500",fontFamily:"monospace"}}>2222</span></div>
-            <div>Station 3: <span style={{color:"#f0a500",fontFamily:"monospace"}}>3333</span></div>
+          <div style={{fontWeight:700,marginBottom:6,textTransform:"uppercase",letterSpacing:1}}>PINs</div>
+          <div style={{display:"flex",flexDirection:"column",gap:4}}>
+            <div>Staff (all stations): <span style={{color:"#f0a500",fontFamily:"monospace"}}>1111</span></div>
+            <div>Head Coach: <span style={{color:"#ef5350",fontFamily:"monospace"}}>0000</span></div>
           </div>
-          <div>Head Coach: <span style={{color:"#ef5350",fontFamily:"monospace"}}>0000</span></div>
         </div>
       </div>
     </div>
   );
 }
 
+// ── STATION TILE SELECT ──────────────────────────────────────────────
+function StationTileSelect({onLogin,onBack}){
+  return(
+    <div style={{minHeight:"100vh",background:"#0d1017",display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
+      <div style={{width:"100%",maxWidth:560,textAlign:"center"}}>
+        <div style={{fontSize:44,marginBottom:10}} role="img" aria-label="Volleyball">🏐</div>
+        <h1 style={{margin:"0 0 4px",fontSize:24,fontWeight:800}}><span style={{color:"#f0a500"}}>MID TN</span> VBC</h1>
+        <p style={{color:"#78909c",fontSize:13,margin:"0 0 28px"}}>Select your station to begin</p>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:24}}>
+          {STATIONS.map(s=>(
+            <button key={s.key} id={`tile-${s.key}`}
+              onClick={()=>onLogin({role:"station",station:s.key,label:s.label,isCheckin:s.isCheckin})}
+              style={{background:"#1a1d24",border:`2px solid ${s.color}44`,borderRadius:14,padding:"28px 16px",
+                cursor:"pointer",textAlign:"center",transition:"all .18s",color:"#e8eaed"}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor=s.color;e.currentTarget.style.background="#1e2330";}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor=s.color+"44";e.currentTarget.style.background="#1a1d24";}}>
+              <div style={{fontSize:36,marginBottom:10}}>{s.icon}</div>
+              <div style={{fontWeight:700,fontSize:15,color:s.color}}>{s.label}</div>
+              {s.isCheckin&&<div style={{fontSize:11,color:"#546e7a",marginTop:4}}>Sign-in &amp; Walk-ups</div>}
+              {!s.isCheckin&&<div style={{fontSize:11,color:"#546e7a",marginTop:4}}>{s.metrics.join(" · ")}</div>}
+            </button>
+          ))}
+        </div>
+        <button onClick={onBack} style={{background:"transparent",border:"1px solid #2a2e38",borderRadius:8,padding:"8px 20px",color:"#78909c",fontSize:13,cursor:"pointer"}}>← Back to PIN entry</button>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ── CHECK-IN STATION ─────────────────────────────────────────────────
 function CheckInStation({athletes,onArrive,onAddWalkup,onLogout}){
   const [search,setSearch]=useState("");
   const [walkupMode,setWalkupMode]=useState(false);
   const [wu,setWu]=useState({first:"",last:"",dob:"",division:"12 & Under",primaryPos:"Outside Hitter",altPos:"",phone:"",email:""});
+  const [wuErr,setWuErr]=useState({});
   const [recentArrivals,setRecentArrivals]=useState([]);
+  const [verifyAth,setVerifyAth]=useState(null); // athlete pending check-in verification
+  const [verifyPhone,setVerifyPhone]=useState("");
+  const [verifyEmail,setVerifyEmail]=useState("");
   const inp=useRef();
   useEffect(()=>{inp.current?.focus();},[walkupMode]);
 
@@ -264,17 +300,35 @@ function CheckInStation({athletes,onArrive,onAddWalkup,onLogout}){
     return athletes.filter(a=>!a.hidden&&(a.first.toLowerCase().includes(s)||a.last.toLowerCase().includes(s)||a.to.includes(search.trim())));
   },[search,athletes]);
 
-  const markArrived=(a)=>{
-    onArrive(a.id);
-    setRecentArrivals(p=>[{...a,arrived:true},...p.filter(x=>x.id!==a.id)].slice(0,8));
+  // Opens verification modal before marking arrived
+  const requestVerify=(a)=>{
+    setVerifyAth(a);
+    setVerifyPhone(a.phone||"");
+    setVerifyEmail(a.email||"");
+  };
+  const confirmArrived=()=>{
+    onArrive(verifyAth.id,{phone:verifyPhone,email:verifyEmail});
+    setRecentArrivals(p=>[{...verifyAth,arrived:true,phone:verifyPhone,email:verifyEmail},...p.filter(x=>x.id!==verifyAth.id)].slice(0,8));
     setSearch("");
+    setVerifyAth(null);
+  };
+
+  const validateWalkup=()=>{
+    const e={};
+    if(!wu.first) e.first="First name is required";
+    if(!wu.last) e.last="Last name is required";
+    if(!wu.phone) e.phone="Phone number is required";
+    if(!wu.email) e.email="Email address is required";
+    setWuErr(e);
+    return Object.keys(e).length===0;
   };
   const submitWalkup=()=>{
-    if(!wu.first||!wu.last) return;
+    if(!validateWalkup()) return;
     const to=nextTO(athletes);
     onAddWalkup({...wu,to,isWalkup:true,arrived:true,status:"arrived",id:`wu-${Date.now()}`});
     setRecentArrivals(p=>[{...wu,to,isWalkup:true},...p].slice(0,8));
     setWu({first:"",last:"",dob:"",division:"12 & Under",primaryPos:"Outside Hitter",altPos:"",phone:"",email:""});
+    setWuErr({});
     setWalkupMode(false);
   };
 
@@ -283,6 +337,32 @@ function CheckInStation({athletes,onArrive,onAddWalkup,onLogout}){
 
   return(
     <div style={{minHeight:"100vh",background:"#0d1017"}}>
+      {/* ── Check-In Verification Modal ── */}
+      {verifyAth&&(
+        <div onClick={()=>setVerifyAth(null)} style={{position:"fixed",inset:0,background:"#000c",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#1a1d24",border:"2px solid #26c6da44",borderRadius:16,padding:28,width:460,maxWidth:"100%"}}>
+            <h3 style={{margin:"0 0 6px",fontSize:18,color:"#26c6da"}}>Verify Contact Info</h3>
+            <p style={{margin:"0 0 20px",fontSize:13,color:"#78909c"}}>Confirm or update phone &amp; email for <strong style={{color:"#e8eaed"}}>{verifyAth.first} {verifyAth.last}</strong> before checking in.</p>
+            <div style={{display:"grid",gap:14,marginBottom:20}}>
+              <div>
+                <label style={{fontSize:11,color:"#78909c",display:"block",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Phone on file</label>
+                <input value={verifyPhone} onChange={e=>setVerifyPhone(e.target.value)} placeholder="Enter phone number"
+                  style={{width:"100%",padding:"10px 14px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:8,color:"#e8eaed",fontSize:15}}/>
+              </div>
+              <div>
+                <label style={{fontSize:11,color:"#78909c",display:"block",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Email on file</label>
+                <input value={verifyEmail} onChange={e=>setVerifyEmail(e.target.value)} placeholder="Enter email address"
+                  style={{width:"100%",padding:"10px 14px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:8,color:"#e8eaed",fontSize:15}}/>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:10}}>
+              <Btn onClick={()=>setVerifyAth(null)} color="#2a2e38" style={{flex:1}}>Cancel</Btn>
+              <Btn onClick={confirmArrived} color="#26c6da" style={{flex:2,fontWeight:800,fontSize:15}}>Confirm &amp; Check In ✓</Btn>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{background:"#1a1d24",borderBottom:"1px solid #1e222b",padding:"14px 24px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div>
           <h1 style={{margin:0,fontSize:20,fontWeight:800,color:"#26c6da"}}>Check-In Station</h1>
@@ -319,7 +399,7 @@ function CheckInStation({athletes,onArrive,onAddWalkup,onLogout}){
                     {a.isWalkup&&<Badge c="#ffa726" sm>Walkup</Badge>}
                     {a.arrived
                       ?<Badge c="#66bb6a">✓ Arrived</Badge>
-                      :<Btn onClick={()=>markArrived(a)} color="#26c6da" style={{fontSize:14,padding:"8px 20px"}}>Mark Arrived ✓</Btn>}
+                      :<Btn onClick={()=>requestVerify(a)} color="#26c6da" style={{fontSize:14,padding:"8px 20px"}}>Check In ✓</Btn>}
                   </div>
                 ))}
               </div>
@@ -342,14 +422,17 @@ function CheckInStation({athletes,onArrive,onAddWalkup,onLogout}){
           <div style={{background:"#1a1d24",border:"1px solid #f0a50033",borderRadius:12,padding:24}}>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:20}}>
               <h3 style={{margin:0,color:"#f0a500",fontSize:16}}>Add Walkup Athlete</h3>
-          <Btn sm onClick={()=>setWalkupMode(false)} color="#2a2e38" aria-label="Cancel">Cancel</Btn>
+              <Btn sm onClick={()=>{setWalkupMode(false);setWuErr({});}} color="#2a2e38" aria-label="Cancel">Cancel</Btn>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
-              {[["First Name","first",true],["Last Name","last",true],["Date of Birth","dob",false],["Phone","phone",false],["Email","email",false]].map(([l,k,req])=>(
+              {[["First Name","first",true],["Last Name","last",true],["Date of Birth","dob",false],["Phone","phone",true],["Email","email",true]].map(([l,k,req])=>(
                 <div key={k} style={{gridColumn:k==="email"?"span 2":"auto"}}>
-                  <label style={{fontSize:11,color:"#78909c",display:"block",marginBottom:4}}>{l}{req&&" *"}</label>
-                  <input value={wu[k]} onChange={e=>setWu(p=>({...p,[k]:e.target.value}))} placeholder={l}
-                    style={{width:"100%",padding:"8px 12px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:6,color:"#e8eaed",fontSize:13}}/>
+                  <label style={{fontSize:11,color:wuErr[k]?"#ef5350":"#78909c",display:"block",marginBottom:4}}>
+                    {l}{req&&<span style={{color:"#ef5350"}}> *</span>}
+                  </label>
+                  <input value={wu[k]} onChange={e=>{setWu(p=>({...p,[k]:e.target.value}));setWuErr(p=>({...p,[k]:""}));}} placeholder={l}
+                    style={{width:"100%",padding:"8px 12px",background:"#12151c",border:`1px solid ${wuErr[k]?"#ef5350":"#2a2e38"}`,borderRadius:6,color:"#e8eaed",fontSize:13}}/>
+                  {wuErr[k]&&<div style={{fontSize:11,color:"#ef5350",marginTop:3}}>{wuErr[k]}</div>}
                 </div>
               ))}
               <div>
@@ -365,7 +448,7 @@ function CheckInStation({athletes,onArrive,onAddWalkup,onLogout}){
                 </select>
               </div>
             </div>
-            <Btn onClick={submitWalkup} color="#f0a500" disabled={!wu.first||!wu.last} style={{width:"100%",padding:12,fontSize:15}}>Add Walkup & Check In ✓</Btn>
+            <Btn onClick={submitWalkup} color="#f0a500" style={{width:"100%",padding:12,fontSize:15}}>Add Walkup & Check In ✓</Btn>
           </div>
         )}
       </div>
@@ -1158,7 +1241,7 @@ function TryoutApp() {
 
   // If station user, show station entry view
   if (user.role === "station") {
-    if (user.isCheckin) return <CheckInStation athletes={athletes} onArrive={id => updateAthlete(id, {arrived: true, status: "arrived"})} onAddWalkup={a => setAthletes(prev => [...prev, a])} onLogout={() => setUser(null)} />;
+    if (user.isCheckin) return <CheckInStation athletes={athletes} onArrive={(id,contactInfo)=>updateAthlete(id,{arrived:true,status:"arrived",...(contactInfo||{})})} onAddWalkup={a=>setAthletes(prev=>[...prev,a])} onLogout={()=>setUser(null)} />;
     return <StationView stationKey={user.station} label={user.label} athletes={athletes} updateMetric={updateMetric} onLogout={()=>setUser(null)} />;
   }
 
