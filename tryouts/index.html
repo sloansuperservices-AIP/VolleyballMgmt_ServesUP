@@ -11,7 +11,6 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:#0d1017;color:#e8eaed;font-family:'Inter',-apple-system,sans-serif;min-height:100vh}
-:focus-visible{outline:2px solid #4fc3f7;outline-offset:2px}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:#12151c}::-webkit-scrollbar-thumb{background:#2a2e38;border-radius:3px}
 input,textarea,select{font-family:inherit}
 @media print{
@@ -25,7 +24,7 @@ input,textarea,select{font-family:inherit}
 <body>
 <div id="root"></div>
 <div id="loading" style="position:fixed;inset:0;background:#0d1017;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:9999">
-  <div style="font-size:48px" role="img" aria-label="Volleyball">🏐</div>
+  <div style="font-size:48px">🏐</div>
   <div style="color:#f0a500;font-family:sans-serif;font-size:18px;font-weight:700">MID TN VBC</div>
   <div style="color:#546e7a;font-family:sans-serif;font-size:13px">Loading Tryout Manager...</div>
   <div id="load-err" style="color:#ef5350;font-family:sans-serif;font-size:12px;margin-top:8px;max-width:400px;text-align:center"></div>
@@ -48,13 +47,12 @@ const {useState,useEffect,useMemo,useRef,useCallback} = React;
 // ── CONFIG ─────────────────────────────────────────────────────────
 const LOCAL_KEY = "midtn_tryout_v2";
 const SCRIPT_KEY = "midtn_script_url";
-const STAFF_PIN = "1111";  // single staff PIN → shows station tile selection
 
 const STATIONS = [
-  {key:"checkin", label:"Check-In",           icon:"✅", color:"#26c6da", metrics:[], isCheckin:true},
-  {key:"station1",label:"Station 1: Physical", icon:"📏", color:"#f0a500", metrics:["Height (in)","Reach (in)","Vertical (in)"]},
-  {key:"station2",label:"Station 2: Agility",  icon:"⚡", color:"#ab47bc", metrics:["Shuttle Run 1","Shuttle Run 2","Shuttle Run 3"]},
-  {key:"station3",label:"Station 3: Skills",   icon:"🏐", color:"#66bb6a", metrics:["Skill 1","Skill 2","Skill 3"]},
+  {key:"checkin", label:"Check-In",        pin:"9999", metrics:[], isCheckin:true},
+  {key:"station1",label:"Station 1: Physical", pin:"1111", metrics:["Height (in)","Reach (in)","Vertical (in)"]},
+  {key:"station2",label:"Station 2: Agility",  pin:"2222", metrics:["Shuttle Run 1","Shuttle Run 2","Shuttle Run 3"]},
+  {key:"station3",label:"Station 3: Skills",   pin:"3333", metrics:["Skill 1","Skill 2","Skill 3"]},
 ];
 const HC_PIN = "0000";
 const AGE_GROUPS = ["12","13","14","15","16","17","18"];
@@ -205,92 +203,57 @@ function Badge({c="#4fc3f7",bg,children,sm}){
 }
 function StatusBadge({status}){
   const m={pending:{c:"#78909c",l:"Pending"},arrived:{c:"#26c6da",l:"Arrived"},contacted:{c:"#ffa726",l:"Contacted"},offered:{c:"#42a5f5",l:"Offered"},accepted:{c:"#66bb6a",l:"Accepted"},declined:{c:"#ef5350",l:"Declined"},info_requested:{c:"#ab47bc",l:"Info Req."}};
-  cons// ── LOGIN ─────────────────────────────────────────────────────────
+  const s=m[status]||m.pending;
+  return <Badge c={s.c}>{s.l}</Badge>;
+}
+function Btn({children,onClick,color="#1565c0",outline,sm,disabled,style:sx,danger}){
+  const c=danger?"#ef5350":color;
+  return <button onClick={onClick} disabled={disabled} style={{padding:sm?"4px 10px":"8px 16px",background:outline?"transparent":c,border:outline?`1px solid ${c}`:"none",borderRadius:6,color:outline?c:"#fff",cursor:disabled?"not-allowed":"pointer",fontSize:sm?11:13,fontWeight:600,opacity:disabled?.5:1,transition:"all .15s",whiteSpace:"nowrap",...sx}}>{children}</button>;
+}
+
+// ── LOGIN ───────────────────────────────────────────────────────────
 function Login({onLogin}){
   const [pin,setPin]=useState("");
   const [err,setErr]=useState("");
-  const [showTiles,setShowTiles]=useState(false);
   const go=()=>{
     if(pin===HC_PIN){onLogin({role:"hc"});return;}
-    if(pin===STAFF_PIN){setShowTiles(true);setPin("");setErr("");return;}
+    const s=STATIONS.find(x=>x.pin===pin);
+    if(s){onLogin({role:"station",station:s.key,label:s.label,isCheckin:s.isCheckin});return;}
     setErr("Invalid PIN");setPin("");
   };
-  if(showTiles) return <StationTileSelect onLogin={onLogin} onBack={()=>setShowTiles(false)}/>;
   return(
     <div style={{minHeight:"100vh",background:"#0d1017",display:"flex",alignItems:"center",justifyContent:"center"}}>
       <div style={{background:"#1a1d24",border:"1px solid #2a2e38",borderRadius:16,padding:40,width:380,textAlign:"center"}}>
-        <div style={{fontSize:44,marginBottom:10}} role="img" aria-label="Volleyball">🏐</div>
+        <div style={{fontSize:44,marginBottom:10}}>🏐</div>
         <h1 style={{margin:"0 0 4px",fontSize:26,fontWeight:800}}><span style={{color:"#f0a500"}}>MID TN</span> VBC</h1>
         <p style={{color:"#78909c",fontSize:13,margin:"0 0 6px"}}>Tryout Manager v2 · 2026–2027</p>
         <a href="../" style={{display:"block",fontSize:12,color:"#4fc3f7",marginBottom:24}}>← Back to Hub</a>
         <input value={pin} onChange={e=>{setPin(e.target.value);setErr("");}} onKeyDown={e=>e.key==="Enter"&&go()}
-          type="password" placeholder="Enter PIN" maxLength={6} id="pin-input"
-          style={{width:"100%",padding:"12px",background:"#12151c",border:`1px solid ${err?"#ef5350":"#2a2e38"}`,borderRadius:8,color:"#e8eaed",fontSize:20,textAlign:"center",letterSpacing:10,marginBottom:10}}/>
+          type="password" placeholder="Enter PIN" maxLength={6}
+          style={{width:"100%",padding:"12px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:8,color:"#e8eaed",fontSize:20,textAlign:"center",letterSpacing:10,marginBottom:10}}/>
         {err&&<p style={{color:"#ef5350",fontSize:13,margin:"0 0 10px"}}>{err}</p>}
-        <button onClick={go} id="pin-submit" style={{width:"100%",padding:12,background:"#f0a500",border:"none",borderRadius:8,color:"#000",fontSize:15,fontWeight:800,cursor:"pointer",marginBottom:20}}>Log In →</button>
+        <button onClick={go} style={{width:"100%",padding:12,background:"#f0a500",border:"none",borderRadius:8,color:"#000",fontSize:15,fontWeight:800,cursor:"pointer",marginBottom:20}}>Log In →</button>
         <div style={{borderTop:"1px solid #2a2e38",paddingTop:14,fontSize:11,color:"#546e7a"}}>
-          <div style={{fontWeight:700,marginBottom:6,textTransform:"uppercase",letterSpacing:1}}>PINs</div>
-          <div style={{display:"flex",flexDirection:"column",gap:4}}>
-            <div>Staff (all stations): <span style={{color:"#f0a500",fontFamily:"monospace"}}>1111</span></div>
-            <div>Head Coach: <span style={{color:"#ef5350",fontFamily:"monospace"}}>0000</span></div>
+          <div style={{fontWeight:700,marginBottom:8,textTransform:"uppercase",letterSpacing:1}}>PINs</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,textAlign:"left",marginBottom:6}}>
+            <div>Check-In: <span style={{color:"#26c6da",fontFamily:"monospace"}}>9999</span></div>
+            <div>Station 1: <span style={{color:"#f0a500",fontFamily:"monospace"}}>1111</span></div>
+            <div>Station 2: <span style={{color:"#f0a500",fontFamily:"monospace"}}>2222</span></div>
+            <div>Station 3: <span style={{color:"#f0a500",fontFamily:"monospace"}}>3333</span></div>
           </div>
+          <div>Head Coach: <span style={{color:"#ef5350",fontFamily:"monospace"}}>0000</span></div>
         </div>
       </div>
     </div>
   );
 }
-
-// ── STATION TILE SELECT ──────────────────────────────────────────────
-function StationTileSelect({onLogin,onBack}){
-  return(
-    <div style={{minHeight:"100vh",background:"#0d1017",display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
-      <div style={{width:"100%",maxWidth:560,textAlign:"center"}}>
-        <div style={{fontSize:44,marginBottom:10}} role="img" aria-label="Volleyball">🏐</div>
-        <h1 style={{margin:"0 0 4px",fontSize:24,fontWeight:800}}><span style={{color:"#f0a500"}}>MID TN</span> VBC</h1>
-        <p style={{color:"#78909c",fontSize:13,margin:"0 0 28px"}}>Select your station to begin</p>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:24}}>
-          {STATIONS.map(s=>(
-            <button key={s.key} id={`tile-${s.key}`}
-              onClick={()=>onLogin({role:"station",station:s.key,label:s.label,isCheckin:s.isCheckin})}
-              style={{background:"#1a1d24",border:`2px solid ${s.color}44`,borderRadius:14,padding:"28px 16px",
-                cursor:"pointer",textAlign:"center",transition:"all .18s",color:"#e8eaed"}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor=s.color;e.currentTarget.style.background="#1e2330";}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor=s.color+"44";e.currentTarget.style.background="#1a1d24";}}>
-              <div style={{fontSize:36,marginBottom:10}}>{s.icon}</div>
-              <div style={{fontWeight:700,fontSize:15,color:s.color}}>{s.label}</div>
-              {s.isCheckin&&<div style={{fontSize:11,color:"#546e7a",marginTop:4}}>Sign-in &amp; Walk-ups</div>}
-              {!s.isCheckin&&<div style={{fontSize:11,color:"#546e7a",marginTop:4}}>{s.metrics.join(" · ")}</div>}
-            </button>
-          ))}
-        </div>
-        <button onClick={onBack} style={{background:"transparent",border:"1px solid #2a2e38",borderRadius:8,padding:"8px 20px",color:"#78909c",fontSize:13,cursor:"pointer"}}>← Back to PIN entry</button>
-      </div>
-    </div>
-  );
-}
-
-
-
-
-
-
-
-
-
-
-
-
 
 // ── CHECK-IN STATION ─────────────────────────────────────────────────
 function CheckInStation({athletes,onArrive,onAddWalkup,onLogout}){
   const [search,setSearch]=useState("");
   const [walkupMode,setWalkupMode]=useState(false);
   const [wu,setWu]=useState({first:"",last:"",dob:"",division:"12 & Under",primaryPos:"Outside Hitter",altPos:"",phone:"",email:""});
-  const [wuErr,setWuErr]=useState({});
   const [recentArrivals,setRecentArrivals]=useState([]);
-  const [verifyAth,setVerifyAth]=useState(null); // athlete pending check-in verification
-  const [verifyPhone,setVerifyPhone]=useState("");
-  const [verifyEmail,setVerifyEmail]=useState("");
   const inp=useRef();
   useEffect(()=>{inp.current?.focus();},[walkupMode]);
 
@@ -300,35 +263,17 @@ function CheckInStation({athletes,onArrive,onAddWalkup,onLogout}){
     return athletes.filter(a=>!a.hidden&&(a.first.toLowerCase().includes(s)||a.last.toLowerCase().includes(s)||a.to.includes(search.trim())));
   },[search,athletes]);
 
-  // Opens verification modal before marking arrived
-  const requestVerify=(a)=>{
-    setVerifyAth(a);
-    setVerifyPhone(a.phone||"");
-    setVerifyEmail(a.email||"");
-  };
-  const confirmArrived=()=>{
-    onArrive(verifyAth.id,{phone:verifyPhone,email:verifyEmail});
-    setRecentArrivals(p=>[{...verifyAth,arrived:true,phone:verifyPhone,email:verifyEmail},...p.filter(x=>x.id!==verifyAth.id)].slice(0,8));
+  const markArrived=(a)=>{
+    onArrive(a.id);
+    setRecentArrivals(p=>[{...a,arrived:true},...p.filter(x=>x.id!==a.id)].slice(0,8));
     setSearch("");
-    setVerifyAth(null);
-  };
-
-  const validateWalkup=()=>{
-    const e={};
-    if(!wu.first) e.first="First name is required";
-    if(!wu.last) e.last="Last name is required";
-    if(!wu.phone) e.phone="Phone number is required";
-    if(!wu.email) e.email="Email address is required";
-    setWuErr(e);
-    return Object.keys(e).length===0;
   };
   const submitWalkup=()=>{
-    if(!validateWalkup()) return;
+    if(!wu.first||!wu.last) return;
     const to=nextTO(athletes);
     onAddWalkup({...wu,to,isWalkup:true,arrived:true,status:"arrived",id:`wu-${Date.now()}`});
     setRecentArrivals(p=>[{...wu,to,isWalkup:true},...p].slice(0,8));
     setWu({first:"",last:"",dob:"",division:"12 & Under",primaryPos:"Outside Hitter",altPos:"",phone:"",email:""});
-    setWuErr({});
     setWalkupMode(false);
   };
 
@@ -337,32 +282,6 @@ function CheckInStation({athletes,onArrive,onAddWalkup,onLogout}){
 
   return(
     <div style={{minHeight:"100vh",background:"#0d1017"}}>
-      {/* ── Check-In Verification Modal ── */}
-      {verifyAth&&(
-        <div onClick={()=>setVerifyAth(null)} style={{position:"fixed",inset:0,background:"#000c",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#1a1d24",border:"2px solid #26c6da44",borderRadius:16,padding:28,width:460,maxWidth:"100%"}}>
-            <h3 style={{margin:"0 0 6px",fontSize:18,color:"#26c6da"}}>Verify Contact Info</h3>
-            <p style={{margin:"0 0 20px",fontSize:13,color:"#78909c"}}>Confirm or update phone &amp; email for <strong style={{color:"#e8eaed"}}>{verifyAth.first} {verifyAth.last}</strong> before checking in.</p>
-            <div style={{display:"grid",gap:14,marginBottom:20}}>
-              <div>
-                <label style={{fontSize:11,color:"#78909c",display:"block",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Phone on file</label>
-                <input value={verifyPhone} onChange={e=>setVerifyPhone(e.target.value)} placeholder="Enter phone number"
-                  style={{width:"100%",padding:"10px 14px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:8,color:"#e8eaed",fontSize:15}}/>
-              </div>
-              <div>
-                <label style={{fontSize:11,color:"#78909c",display:"block",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Email on file</label>
-                <input value={verifyEmail} onChange={e=>setVerifyEmail(e.target.value)} placeholder="Enter email address"
-                  style={{width:"100%",padding:"10px 14px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:8,color:"#e8eaed",fontSize:15}}/>
-              </div>
-            </div>
-            <div style={{display:"flex",gap:10}}>
-              <Btn onClick={()=>setVerifyAth(null)} color="#2a2e38" style={{flex:1}}>Cancel</Btn>
-              <Btn onClick={confirmArrived} color="#26c6da" style={{flex:2,fontWeight:800,fontSize:15}}>Confirm &amp; Check In ✓</Btn>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div style={{background:"#1a1d24",borderBottom:"1px solid #1e222b",padding:"14px 24px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div>
           <h1 style={{margin:0,fontSize:20,fontWeight:800,color:"#26c6da"}}>Check-In Station</h1>
@@ -399,7 +318,7 @@ function CheckInStation({athletes,onArrive,onAddWalkup,onLogout}){
                     {a.isWalkup&&<Badge c="#ffa726" sm>Walkup</Badge>}
                     {a.arrived
                       ?<Badge c="#66bb6a">✓ Arrived</Badge>
-                      :<Btn onClick={()=>requestVerify(a)} color="#26c6da" style={{fontSize:14,padding:"8px 20px"}}>Check In ✓</Btn>}
+                      :<Btn onClick={()=>markArrived(a)} color="#26c6da" style={{fontSize:14,padding:"8px 20px"}}>Mark Arrived ✓</Btn>}
                   </div>
                 ))}
               </div>
@@ -422,17 +341,14 @@ function CheckInStation({athletes,onArrive,onAddWalkup,onLogout}){
           <div style={{background:"#1a1d24",border:"1px solid #f0a50033",borderRadius:12,padding:24}}>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:20}}>
               <h3 style={{margin:0,color:"#f0a500",fontSize:16}}>Add Walkup Athlete</h3>
-              <Btn sm onClick={()=>{setWalkupMode(false);setWuErr({});}} color="#2a2e38" aria-label="Cancel">Cancel</Btn>
+              <Btn sm onClick={()=>setWalkupMode(false)} color="#2a2e38">Cancel</Btn>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
-              {[["First Name","first",true],["Last Name","last",true],["Date of Birth","dob",false],["Phone","phone",true],["Email","email",true]].map(([l,k,req])=>(
+              {[["First Name","first",true],["Last Name","last",true],["Date of Birth","dob",false],["Phone","phone",false],["Email","email",false]].map(([l,k,req])=>(
                 <div key={k} style={{gridColumn:k==="email"?"span 2":"auto"}}>
-                  <label style={{fontSize:11,color:wuErr[k]?"#ef5350":"#78909c",display:"block",marginBottom:4}}>
-                    {l}{req&&<span style={{color:"#ef5350"}}> *</span>}
-                  </label>
-                  <input value={wu[k]} onChange={e=>{setWu(p=>({...p,[k]:e.target.value}));setWuErr(p=>({...p,[k]:""}));}} placeholder={l}
-                    style={{width:"100%",padding:"8px 12px",background:"#12151c",border:`1px solid ${wuErr[k]?"#ef5350":"#2a2e38"}`,borderRadius:6,color:"#e8eaed",fontSize:13}}/>
-                  {wuErr[k]&&<div style={{fontSize:11,color:"#ef5350",marginTop:3}}>{wuErr[k]}</div>}
+                  <label style={{fontSize:11,color:"#78909c",display:"block",marginBottom:4}}>{l}{req&&" *"}</label>
+                  <input value={wu[k]} onChange={e=>setWu(p=>({...p,[k]:e.target.value}))} placeholder={l}
+                    style={{width:"100%",padding:"8px 12px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:6,color:"#e8eaed",fontSize:13}}/>
                 </div>
               ))}
               <div>
@@ -448,7 +364,7 @@ function CheckInStation({athletes,onArrive,onAddWalkup,onLogout}){
                 </select>
               </div>
             </div>
-            <Btn onClick={submitWalkup} color="#f0a500" style={{width:"100%",padding:12,fontSize:15}}>Add Walkup & Check In ✓</Btn>
+            <Btn onClick={submitWalkup} color="#f0a500" disabled={!wu.first||!wu.last} style={{width:"100%",padding:12,fontSize:15}}>Add Walkup & Check In ✓</Btn>
           </div>
         )}
       </div>
@@ -573,7 +489,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
           <div>
             <h3 style={{margin:0,fontSize:20,color:"#e8eaed",display:"flex",alignItems:"center",gap:8}}>
-              {locked&&<span role="img" aria-label="Locked">🔒 </span>}{athlete.first} {athlete.last}
+              {locked&&"🔒 "}{athlete.first} {athlete.last}
               {athlete.isWalkup&&<Badge c="#ffa726" sm>Walkup</Badge>}
               {athlete.arrived&&<Badge c="#26c6da" sm>✓ Arrived</Badge>}
             </h3>
@@ -581,10 +497,10 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
               <span style={{color:"#4fc3f7",fontSize:13,fontFamily:"monospace"}}>TO# {athlete.to}</span>
               {sc&&<Badge c="#66bb6a">Score: {sc}</Badge>}
               <StatusBadge status={athlete.status}/>
-              {athlete.wontAccept&&<span role="img" aria-label="Team Restriction Alert" title={athlete.wontAccept} style={{cursor:"help"}}>⚠️</span>}
+              {athlete.wontAccept&&<span title={athlete.wontAccept} style={{cursor:"help"}}>⚠️</span>}
             </div>
           </div>
-          <button onClick={onClose} aria-label="Close modal" style={{background:"none",border:"none",color:"#666",fontSize:22,cursor:"pointer"}}>×</button>
+          <button onClick={onClose} style={{background:"none",border:"none",color:"#666",fontSize:22,cursor:"pointer"}}>×</button>
         </div>
 
         {/* Info grid */}
@@ -636,7 +552,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
 
         {/* Won't Accept */}
         <div style={{marginBottom:16}}>
-          <label style={{fontSize:11,color:"#ffa726",display:"block",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}><span role="img" aria-label="Warning">⚠️</span> Won't Accept (team restrictions)</label>
+          <label style={{fontSize:11,color:"#ffa726",display:"block",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>⚠️ Won't Accept (team restrictions)</label>
           <input value={athlete.wontAccept||""} onChange={e=>onChange(athlete.id,{wontAccept:e.target.value})} disabled={locked}
             placeholder="e.g. Will not accept 14 Silver or lower"
             style={{width:"100%",padding:"8px 12px",background:"#12151c",border:"1px solid #ffa72633",borderRadius:8,color:"#e8eaed",fontSize:13}}/>
@@ -671,10 +587,10 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
         </div>
 
         <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-          {!locked&&<Btn onClick={()=>{onEmail(athlete);onClose();}} color="#42a5f5"><span role="img" aria-label="Mailbox">📬</span> Send Offer</Btn>}
+          {!locked&&<Btn onClick={()=>{onEmail(athlete);onClose();}} color="#42a5f5">📬 Send Offer</Btn>}
           {!locked&&!athlete.hidden&&<Btn onClick={()=>{onHide(athlete);onClose();}} danger outline>Hide</Btn>}
           {athlete.hidden&&<Btn onClick={()=>{onUnhide(athlete.id);onClose();}} color="#66bb6a">Unhide</Btn>}
-          {athlete.status==="accepted"&&<Badge c="#66bb6a"><span role="img" aria-label="Locked">🔒</span> Accepted — Locked</Badge>}
+          {athlete.status==="accepted"&&<Badge c="#66bb6a">🔒 Accepted — Locked</Badge>}
         </div>
       </div>
     </div>
@@ -685,23 +601,19 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
 function EmailModal({athlete,team,onClose,onSend}){
   const tpl=`Hello,\n\nWe are pleased to offer ${athlete?.first||""} ${athlete?.last||""} a roster spot on Mid TN VBC${team?` — ${team}`:""} for the 2026-2027 season.\n\nDetails on cost, schedule, and coaching staff are available at www.midtnvbc.com/clubtryouts.\n\nPlease reply with one of the following:\n  1. Accept\n  2. Request a call to discuss\n  3. Decline\n\nThank you!\nMid TN VBC Administration`;
   const [body,setBody]=useState(tpl);
-  const [copied,setCopied]=useState(false);
-  useEffect(()=>{if(athlete){setBody(tpl);setCopied(false);}},[athlete?.id]);
+  useEffect(()=>{if(athlete)setBody(tpl);},[athlete?.id]);
   if(!athlete) return null;
   return(
     <div onClick={onClose} style={{position:"fixed",inset:0,background:"#000b",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
       <div onClick={e=>e.stopPropagation()} style={{background:"#1a1d24",border:"1px solid #2a2e38",borderRadius:14,padding:28,width:580,maxHeight:"90vh",overflow:"auto"}}>
         <h3 style={{margin:"0 0 4px",color:"#e8eaed",fontSize:16}}>Send Offer — {athlete.first} {athlete.last}</h3>
         {team&&<p style={{margin:"0 0 4px",fontSize:12,color:"#f0a500",fontWeight:600}}>{team}</p>}
-        <p style={{margin:"0 0 16px",fontSize:12,color:"#78909c"}}>{athlete.email||<><span role="img" aria-label="Warning">⚠️</span> No email on file</>}</p>
+        <p style={{margin:"0 0 16px",fontSize:12,color:"#78909c"}}>{athlete.email||"⚠️ No email on file"}</p>
         <textarea value={body} onChange={e=>setBody(e.target.value)} rows={13}
           style={{width:"100%",padding:12,background:"#12151c",border:"1px solid #2a2e38",borderRadius:8,color:"#e8eaed",fontSize:13,lineHeight:1.6,resize:"vertical"}}/>
         <div style={{display:"flex",gap:8,marginTop:14,flexWrap:"wrap"}}>
-          <Btn onClick={onClose} color="#2a2e38" aria-label="Close modal">Cancel</Btn>
-          <Btn onClick={()=>{navigator.clipboard?.writeText(body); setCopied(true); setTimeout(()=>setCopied(false), 2000);}}
-            color={copied?"#66bb6a":"#ffa726"} outline aria-label="Copy offer text to clipboard" aria-live="polite">
-            {copied ? "✓ Copied!" : "Copy Text"}
-          </Btn>
+          <Btn onClick={onClose} color="#2a2e38">Cancel</Btn>
+          <Btn onClick={()=>navigator.clipboard?.writeText(body)} color="#ffa726" outline>Copy Text</Btn>
           <Btn onClick={()=>{onSend(athlete,body,team);onClose();}} color="#66bb6a" style={{flex:1}}>
             {athlete.email?"Open Mail App ✓":"Copy & Mark Contacted"}
           </Btn>
@@ -719,19 +631,17 @@ function PlayerCard({athlete,onClick,compact,showScore,teamKey}){
   return(
     <div draggable={!locked} onDragStart={e=>!locked&&e.dataTransfer.setData("text/plain",athlete.id)}
       onClick={()=>onClick?.(athlete)}
-      tabIndex={0} role="button" aria-label={`View details for ${athlete.first} ${athlete.last}`}
-      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onClick?.(athlete)}
       style={{padding:compact?"5px 8px":"9px 12px",margin:"3px 0",background:athlete.status==="declined"?"#2a1215":"#1a1d24",
         border:`1px solid ${locked?"#f0a50044":athlete.status==="declined"?"#ef535033":"#2a2e38"}`,
         borderRadius:7,cursor:locked?"default":"grab",display:"flex",alignItems:"center",gap:7,
         transition:"all .15s",opacity:athlete.hidden?0:.5>0&&athlete.status==="declined"?.55:1}}>
-      {locked&&<span role="img" aria-label="Locked" title="Locked">🔒</span>}
+      {locked&&<span title="Locked">🔒</span>}
       <span style={{fontFamily:"monospace",fontSize:10,color:"#4fc3f7",minWidth:24}}>#{athlete.to}</span>
       <span style={{fontWeight:600,fontSize:compact?12:13,color:"#e8eaed",flex:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{athlete.first} {athlete.last}</span>
       <Badge c="#78909c" sm>{posAbbr(athlete.primaryPos)}</Badge>
       {athlete.altPos&&athlete.altPos!==athlete.primaryPos&&<Badge c="#3a3f47" sm>{posAbbr(athlete.altPos)}</Badge>}
-      {athlete.wontAccept&&<span role="img" aria-label="Team Restriction Alert" title={athlete.wontAccept} style={{fontSize:13}}>⚠️</span>}
-      {athlete.notes&&<span role="img" aria-label="Notes" title={athlete.notes} style={{fontSize:12,cursor:"help"}}>📝</span>}
+      {athlete.wontAccept&&<span title={athlete.wontAccept} style={{fontSize:13}}>⚠️</span>}
+      {athlete.notes&&<span title={athlete.notes} style={{fontSize:12,cursor:"help"}}>📝</span>}
       {showScore&&sc&&<Badge c={Number(sc)>=7?"#66bb6a":Number(sc)>=5?"#ffa726":"#ef5350"}>{sc}</Badge>}
       <StatusBadge status={athlete.status}/>
     </div>
@@ -827,8 +737,8 @@ function DepthChartView({athletes,activeAge,onSelect}){
                     <span style={{flex:1,fontSize:12,fontWeight:600}}>{a.first} {a.last}</span>
                     <Badge c="#546e7a" sm>{posAbbr(a.altPos)}</Badge>
                     {totalScore(a.metrics)&&<Badge c={Number(totalScore(a.metrics))>=7?"#66bb6a":Number(totalScore(a.metrics))>=5?"#ffa726":"#ef5350"} sm>{totalScore(a.metrics)}</Badge>}
-                    {a.wontAccept&&<span role="img" aria-label="Team Restriction Alert" title={a.wontAccept}>⚠️</span>}
-                    {a.notes&&<span role="img" aria-label="Notes" title={a.notes}>📝</span>}
+                    {a.wontAccept&&<span title={a.wontAccept}>⚠️</span>}
+                    {a.notes&&<span title={a.notes}>📝</span>}
                   </div>
                 ))}
                 {list.length===0&&<div style={{padding:20,textAlign:"center",color:"#333",fontSize:12}}>None</div>}
@@ -845,6 +755,7 @@ function DepthChartView({athletes,activeAge,onSelect}){
 function TeamBuilderView({athletes,activeAge,onChange,onSelect,onEmail}){
   const [poolSort,setPoolSort]=useState("score");
   const [showPool,setShowPool]=useState(true);
+  const [dragOver,setDragOver]=useState(null);
   const ageAthletes=athletes.filter(a=>a.ageGroup===activeAge&&!a.hidden);
   const pool=useMemo(()=>{
     let l=ageAthletes.filter(a=>!a.teamAssignment);
@@ -856,36 +767,42 @@ function TeamBuilderView({athletes,activeAge,onChange,onSelect,onEmail}){
 
   const drop=(e,teamKey)=>{
     e.preventDefault();
+    setDragOver(null);
     const id=e.dataTransfer.getData("text/plain");
     const a=athletes.find(x=>x.id===id);
     if(a&&!a.teamLocked&&a.status!=="accepted") onChange(id,{teamAssignment:teamKey});
   };
 
+  // Fixed viewport height — both panels scroll independently
+  const panelH = "calc(100vh - 155px)";
+
   return(
-    <div style={{display:"flex",gap:16,alignItems:"flex-start"}}>
-      {/* Pool */}
+    <div style={{display:"flex",gap:16,height:panelH,overflow:"hidden"}}>
+      {/* Pool — fixed left panel, independently scrollable */}
       {showPool&&(
-        <div style={{width:280,flexShrink:0,background:"#12151c",borderRadius:12,border:"1px solid #1e222b",maxHeight:"calc(100vh - 180px)",display:"flex",flexDirection:"column"}}>
-          <div style={{padding:"10px 14px",borderBottom:"1px solid #1e222b"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <div style={{width:272,flexShrink:0,background:"#12151c",borderRadius:12,border:"1px solid #1e222b",display:"flex",flexDirection:"column",height:"100%"}}>
+          <div style={{padding:"10px 14px",borderBottom:"1px solid #1e222b",flexShrink:0}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
               <span style={{fontWeight:700,fontSize:13,color:"#e8eaed"}}>Pool <span style={{color:"#546e7a",fontWeight:400}}>({pool.length})</span></span>
               <select value={poolSort} onChange={e=>setPoolSort(e.target.value)} style={{padding:"2px 6px",background:"#0d1017",border:"1px solid #2a2e38",borderRadius:4,color:"#e8eaed",fontSize:11}}>
                 <option value="score">By Score</option><option value="pos">By Position</option><option value="name">By Name</option>
               </select>
             </div>
-            <div style={{fontSize:11,color:"#546e7a"}}>Drag into teams below ↓</div>
+            <div style={{fontSize:10,color:"#546e7a"}}>Drag into team → teams panel scrolls independently</div>
           </div>
-          <div style={{overflow:"auto",flex:1,padding:8}}>
+          {/* Pool list — scrolls on its own, teams stay visible */}
+          <div style={{overflowY:"auto",flex:1,padding:8}}>
             {pool.map(a=><PlayerCard key={a.id} athlete={a} onClick={onSelect} compact showScore/>)}
             {pool.length===0&&<div style={{padding:30,textAlign:"center",color:"#444",fontSize:12}}>All athletes assigned</div>}
           </div>
         </div>
       )}
-      {/* Teams */}
-      <div style={{flex:1}}>
-        <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:14,flexWrap:"wrap"}}>
+      {/* Teams — fills remaining width, independently scrollable */}
+      <div style={{flex:1,height:"100%",overflowY:"auto",paddingRight:4}}>
+        <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:14,flexWrap:"wrap",position:"sticky",top:0,background:"#0d1017",zIndex:10,paddingBottom:8,paddingTop:2}}>
           <h2 style={{margin:0,fontSize:17,fontWeight:700}}>{activeAge}'s Teams</h2>
           <Btn sm onClick={()=>setShowPool(p=>!p)} color="#2a2e38" outline>{showPool?"Hide Pool":"Show Pool"}</Btn>
+          {!showPool&&<span style={{fontSize:11,color:"#546e7a"}}>{pool.length} in pool</span>}
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(290px,1fr))",gap:14}}>
           {SKILL_LEVELS.map(lvl=>{
@@ -899,7 +816,7 @@ function TeamBuilderView({athletes,activeAge,onChange,onSelect,onEmail}){
               <div key={lvl} style={{background:ts.bg,borderRadius:12,border:`2px solid ${locked?"#f0a500":ts.border}`,overflow:"hidden",transition:"border-color .2s"}}>
                 <div style={{padding:"10px 14px",background:ts.header,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
-                    {locked&&<span role="img" aria-label="Locked">🔒</span>}
+                    {locked&&<span>🔒</span>}
                     <span style={{fontWeight:800,fontSize:14,color:ts.text}}>{activeAge} {lvl}</span>
                     <span style={{fontSize:11,color:"rgba(255,255,255,.5)",background:"rgba(255,255,255,.1)",padding:"2px 7px",borderRadius:10}}>{roster.length}/12</span>
                   </div>
@@ -909,23 +826,28 @@ function TeamBuilderView({athletes,activeAge,onChange,onSelect,onEmail}){
                         const newLocked=!locked;
                         roster.forEach(a=>onChange(a.id,{teamLocked:newLocked}));
                       }} color={locked?"#ef5350":"#f0a500"} outline>
-                        {locked?<><span role="img" aria-label="Unlocked">🔓</span> Unlock</>:<><span role="img" aria-label="Locked">🔒</span> Finalize</>}
+                        {locked?"🔓 Unlock":"🔒 Finalize"}
                       </Btn>
                     )}
                   </div>
                 </div>
-                <div onDragOver={e=>e.preventDefault()} onDrop={e=>!locked&&drop(e,key)}
-                  style={{padding:10,minHeight:120,opacity:locked?.85:1}}>
+                <div
+                  onDragOver={e=>{e.preventDefault();if(!locked)setDragOver(key);}}
+                  onDragLeave={e=>{if(!e.currentTarget.contains(e.relatedTarget))setDragOver(null);}}
+                  onDrop={e=>!locked&&drop(e,key)}
+                  style={{padding:10,minHeight:120,opacity:locked?.85:1,transition:"background .15s",
+                    background:dragOver===key&&!locked?"rgba(240,165,0,0.07)":"transparent",
+                    borderRadius:8}}>
                   {active.length===0&&declined.length===0&&(
-                    <div style={{padding:24,textAlign:"center",color:"#555",fontSize:12,border:"2px dashed #333",borderRadius:8}}>
-                      {locked?"Team locked":"Drop athletes here"}
+                    <div style={{padding:24,textAlign:"center",color:dragOver===key?"#f0a500":"#555",fontSize:12,
+                      border:`2px dashed ${dragOver===key&&!locked?"#f0a500":"#333"}`,borderRadius:8,transition:"all .15s"}}>
+                      {locked?"Team locked":dragOver===key?"Drop here!":"Drop athletes here"}
                     </div>
                   )}
                   {active.map(a=>(
                     <div key={a.id} style={{position:"relative"}}>
                       <PlayerCard athlete={a} onClick={onSelect} compact showScore teamKey={key}/>
                       {!locked&&<button onClick={()=>onChange(a.id,{teamAssignment:null,teamLocked:false})}
-                        aria-label="Remove from team"
                         style={{position:"absolute",right:4,top:"50%",transform:"translateY(-50%)",background:"#ef535033",border:"none",borderRadius:4,color:"#ef5350",cursor:"pointer",fontSize:10,padding:"2px 5px"}}>×</button>}
                     </div>
                   ))}
@@ -942,7 +864,7 @@ function TeamBuilderView({athletes,activeAge,onChange,onSelect,onEmail}){
                       const uncontacted=roster.filter(a=>!["offered","accepted","declined"].includes(a.status));
                       if(uncontacted.length>0) onEmail(uncontacted[0],key);
                     }} color={ts.header} style={{width:"100%",background:ts.header,border:`1px solid ${ts.border}88`}}>
-                      <span role="img" aria-label="Mailbox">📬</span> Send Offers ({roster.filter(a=>!["offered","accepted","declined"].includes(a.status)).length} pending)
+                      📬 Send Offers ({roster.filter(a=>!["offered","accepted","declined"].includes(a.status)).length} pending)
                     </Btn>
                   </div>
                 )}
@@ -1037,7 +959,7 @@ function AllRegView({athletes,onSelect,onArrive,onAddWalkup}){
                 <td style={{...td,fontFamily:"monospace",fontWeight:700}}>{totalScore(a.metrics)||"—"}</td>
                 <td style={td}><StatusBadge status={a.status}/></td>
                 <td style={td}>{a.arrived?<Badge c="#26c6da" sm>✓</Badge>:<Btn sm onClick={e=>{e.stopPropagation();onArrive(a.id);}} color="#26c6da" outline>Check In</Btn>}</td>
-                <td style={td}>{a.notes&&<span role="img" aria-label="Notes" title={a.notes} style={{cursor:"help"}}>📝</span>}{a.wontAccept&&<span role="img" aria-label="Team Restriction Alert" title={a.wontAccept} style={{cursor:"help",marginLeft:4}}>⚠️</span>}</td>
+                <td style={td}>{a.notes&&<span title={a.notes} style={{cursor:"help"}}>📝</span>}{a.wontAccept&&<span title={a.wontAccept} style={{cursor:"help",marginLeft:4}}>⚠️</span>}</td>
                 <td style={{...td,color:"#78909c",whiteSpace:"nowrap"}}>{a.phone}</td>
                 <td style={{...td,color:"#78909c",maxWidth:160,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.email}</td>
               </tr>
@@ -1063,247 +985,4 @@ function AllTeamsView({athletes,onSelect}){
         const hasTeams=SKILL_LEVELS.some(l=>athletes.some(a=>a.teamAssignment===`${age}-${l}`&&!a.hidden));
         if(!hasTeams) return null;
         return(
-          <div key={age} style={{marginBottom:24}}>
-            <h3 style={{fontSize:16,fontWeight:700,color:"#4fc3f7",margin:"0 0 12px",borderBottom:"1px solid #1e222b",paddingBottom:6}}>{age}s</h3>
-            <div style={{display:"grid",gridTemplateColumns:`repeat(${SKILL_LEVELS.length}, 1fr)`,gap:12}}>
-              {SKILL_LEVELS.map(lvl => {
-                const roster = athletes.filter(a => a.teamAssignment === `${age}-${lvl}` && !a.hidden);
-                const cl = TEAM_STYLE[lvl]?.header || "#333";
-                return (
-                  <div key={lvl} style={{background: "#12151c", borderRadius: 10, border: `1px solid ${cl}44`, overflow: "hidden"}}>
-                    <div style={{padding: "8px 12px", background: cl, textAlign: "center"}}><span style={{fontWeight: 800, fontSize: 13, color: "#fff"}}>{age} {lvl}</span></div>
-                    <div style={{padding: 8}}>
-                      {roster.length === 0 ? <div style={{padding: 16, textAlign: "center", color: "#444", fontSize: 11}}>Empty</div> :
-                        roster.map(a => (
-                          <div key={a.id} style={{padding: "4px 8px", fontSize: 12, display:"flex", gap:6, alignItems:"center", borderBottom: "1px solid #1a1d2488", cursor: "pointer"}} onClick={() => onSelect(a)}>
-                            <span style={{color: "#4fc3f7", fontFamily: "monospace", fontSize: 10, minWidth: 24}}>{a.to}</span>
-                            <span style={{flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>{a.first} {a.last}</span>
-                            <Badge c="#78909c" sm>{a.coachPos || posAbbr(a.primaryPos)}</Badge>
-                            <StatusBadge status={a.status}/>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function HideModal({athlete, onClose, onHide}) {
-  const [reason, setReason] = useState("Athlete Declined");
-  const [note, setNote] = useState("");
-  if (!athlete) return null;
-  return (
-    <div style={{position:"fixed",inset:0,background:"#000a",zIndex:1001,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={onClose}>
-      <div onClick={e=>e.stopPropagation()} style={{background:"#1a1d24",border:"1px solid #2a2e38",borderRadius:14,padding:28,width:420}}>
-        <h3 style={{margin:"0 0 12px",color:"#e8eaed",fontSize:18}}>Hide Athlete</h3>
-        <p style={{color:"#78909c",fontSize:13,margin:"0 0 16px"}}>{athlete.first} {athlete.last} (TO# {athlete.to})</p>
-        <div style={{marginBottom:12}}>
-          <label style={{color:"#aaa",fontSize:12,display:"block",marginBottom:6}}>Reason</label>
-          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            {HIDE_REASONS.map(r => <Btn key={r} sm outline={reason!==r} color={reason===r?"#ffa726":"#546e7a"} onClick={()=>setReason(r)}>{r}</Btn>)}
-          </div>
-        </div>
-        <div style={{marginBottom:16}}>
-          <label style={{color:"#aaa",fontSize:12,display:"block",marginBottom:4}}>Note (optional)</label>
-          <textarea value={note} onChange={e=>setNote(e.target.value)} rows={3} placeholder="Add any notes..."
-            style={{width:"100%",padding:"8px 12px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:6,color:"#e8eaed",fontSize:13,fontFamily:"inherit",resize:"vertical",boxSizing:"border-box"}} />
-        </div>
-        <div style={{display:"flex",gap:10,justifyContent:"flex-end"}}>
-          <Btn onClick={onClose} color="#2a2e38" aria-label="Cancel">Cancel</Btn>
-          <Btn onClick={()=>{onHide(athlete.id,reason,note);onClose();}} color="#ef5350">Hide Athlete</Btn>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CSVImportModal({onClose, onImport}) {
-  const [csvText, setCsvText] = useState("");
-  const [preview, setPreview] = useState([]);
-  const fileRef = useRef();
-  const handleFile = e => {
-    const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => { const t = ev.target.result; setCsvText(t); setPreview(parseCSV(t).slice(0,5)); };
-    reader.readAsText(file);
-  };
-  const handlePaste = t => { setCsvText(t); setPreview(parseCSV(t).slice(0,5)); };
-  const total = csvText ? parseCSV(csvText).length : 0;
-  return (
-    <div style={{position:"fixed",inset:0,background:"#000a",zIndex:1001,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={onClose}>
-      <div onClick={e=>e.stopPropagation()} style={{background:"#1a1d24",border:"1px solid #2a2e38",borderRadius:14,padding:28,width:640,maxHeight:"85vh",overflow:"auto"}}>
-        <h3 style={{margin:"0 0 4px",color:"#e8eaed",fontSize:18}}>Import Athletes from CSV</h3>
-        <p style={{color:"#78909c",fontSize:13,margin:"0 0 16px"}}>Upload a CSV file or paste data. Columns: First Name, Last Name, Division, Primary Position, Alt Position, Phone, Email</p>
-        <div style={{display:"flex",gap:12,marginBottom:16}}>
-          <input type="file" accept=".csv,.txt" ref={fileRef} onChange={handleFile} style={{display:"none"}} />
-          <Btn onClick={()=>fileRef.current?.click()}>Choose CSV File</Btn>
-          <span style={{color:"#546e7a",fontSize:13,alignSelf:"center"}}>or paste below</span>
-        </div>
-        <textarea value={csvText} onChange={e=>handlePaste(e.target.value)} rows={6}
-          placeholder="first_name,last_name,division,primary_position,alt_position,phone,email"
-          style={{width:"100%",padding:"10px 12px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:6,color:"#e8eaed",fontSize:12,fontFamily:"monospace",resize:"vertical",boxSizing:"border-box",marginBottom:12}} />
-        {preview.length > 0 && (
-          <div style={{marginBottom:16}}>
-            <div style={{fontSize:12,color:"#66bb6a",fontWeight:700,marginBottom:6}}>Preview ({total} athletes found):</div>
-            <div style={{overflowX:"auto"}}>
-              <table style={{width:"100%",fontSize:12,borderCollapse:"collapse"}}>
-                <thead><tr style={{borderBottom:"1px solid #2a2e38"}}>{["First","Last","Division","Pos"].map(h=><th key={h} style={{padding:"4px 8px",color:"#78909c",textAlign:"left",fontSize:11}}>{h}</th>)}</tr></thead>
-                <tbody>{preview.map((p,i)=><tr key={i} style={{borderBottom:"1px solid #1e222b"}}><td style={{padding:"4px 8px",color:"#e8eaed"}}>{p.first}</td><td style={{padding:"4px 8px",color:"#e8eaed"}}>{p.last}</td><td style={{padding:"4px 8px"}}>{p.division}</td><td style={{padding:"4px 8px",color:"#aaa"}}>{p.primaryPos}</td></tr>)}</tbody>
-              </table>
-            </div>
-          </div>
-        )}
-        <div style={{display:"flex",gap:10,justifyContent:"flex-end"}}>
-          <Btn onClick={onClose} color="#2a2e38" aria-label="Cancel">Cancel</Btn>
-          <Btn onClick={()=>{if(total>0){onImport(parseCSV(csvText));onClose();}}} color="#66bb6a" disabled={total===0}>Import {total} Athletes</Btn>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function HiddenView({athletes, onUnhide, onSelect}) {
-  const hidden = athletes.filter(a => a.hidden);
-  const grouped = {};
-  hidden.forEach(a => { const r = a.hideReason||"Other"; if (!grouped[r]) grouped[r]=[]; grouped[r].push(a); });
-  return (
-    <div>
-      <h2 style={{fontSize:18,fontWeight:700,margin:"0 0 16px",color:"#e8eaed"}}>Hidden Athletes ({hidden.length})</h2>
-      {hidden.length === 0 && <div style={{padding:40,textAlign:"center",color:"#444"}}>No hidden athletes</div>}
-      {Object.entries(grouped).map(([reason, list]) => (
-        <div key={reason} style={{marginBottom:20}}>
-          <div style={{fontSize:13,fontWeight:700,color:"#ffa726",marginBottom:8}}>{reason} ({list.length})</div>
-          {list.map(a => (
-            <div key={a.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"#1a1a10",border:"1px solid #ffa72622",borderRadius:8,marginBottom:4}}>
-              <span style={{fontFamily:"monospace",fontSize:11,color:"#4fc3f7"}}>#{a.to}</span>
-              <span style={{fontWeight:600,fontSize:13,color:"#e8eaed",flex:1,cursor:"pointer"}} onClick={()=>onSelect(a)}>{a.first} {a.last}</span>
-              <Badge c="#78909c">{a.ageGroup}s</Badge>
-              {a.hideNote && <span style={{fontSize:11,color:"#888",maxWidth:200,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.hideNote}</span>}
-              <Btn sm onClick={()=>onUnhide(a.id)} color="#66bb6a">Unhide</Btn>
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-function TryoutApp() {
-  const [user, setUser] = useState(null); // {role, label, station}
-  const [athletes, setAthletes] = useState(() => initAthletes(RAW));
-  const [activeAge, setActiveAge] = useState("12");
-  const [view, setView] = useState("allreg");
-  const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const [emailPlayer, setEmailPlayer] = useState(null);
-  const [emailTeam, setEmailTeam] = useState("");
-  const [hidePlayer, setHidePlayer] = useState(null);
-  const [showImport, setShowImport] = useState(false);
-  const [search, setSearch] = useState("");
-
-  const updateAthlete = useCallback((id, updates) => {
-    setAthletes(prev => prev.map(a => a.id === id ? {...a,...updates} : a));
-    setSelectedPlayer(p => p?.id === id ? {...p,...updates} : p);
-  }, []);
-  const updateMetric = useCallback((id, stationKey, values) => {
-    setAthletes(prev => prev.map(a => a.id === id ? {...a, metrics:{...a.metrics, [stationKey]:values}} : a));
-    setSelectedPlayer(p => p?.id === id ? {...p, metrics:{...p.metrics, [stationKey]:values}} : p);
-  }, []);
-  const hideAthlete = useCallback((id, reason, note) => updateAthlete(id, {hidden:true, hideReason:reason, hideNote:note, teamAssignment:null}), [updateAthlete]);
-  const unhideAthlete = useCallback((id) => updateAthlete(id, {hidden:false, hideReason:"", hideNote:""}), [updateAthlete]);
-  const importAthletes = useCallback((newRaw) => setAthletes(prev => [...prev, ...initAthletes(newRaw)]), []);
-  const handleSendEmail = useCallback((athlete, body) => {
-    updateAthlete(athlete.id, {status: athlete.status==="pending"?"contacted":athlete.status});
-    if (athlete.email) { window.open(`mailto:${athlete.email}?subject=${encodeURIComponent(`Mid TN VBC - Offer for ${athlete.first} ${athlete.last}`)}&body=${encodeURIComponent(body)}`, "_blank"); }
-    else { navigator.clipboard?.writeText(body); }
-  }, [updateAthlete]);
-
-  // Handle Escape key to close modals
-  useEffect(() => {
-    const handleEsc = (event) => {
-      if (event.key === 'Escape') {
-        setSelectedPlayer(null);
-        setEmailPlayer(null);
-        setHidePlayer(null);
-        setShowImport(false);
-      }
-    };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, []);
-
-  // If not logged in, show login
-  if (!user) return <Login onLogin={setUser} />;
-
-  // If station user, show station entry view
-  if (user.role === "station") {
-    if (user.isCheckin) return <CheckInStation athletes={athletes} onArrive={(id,contactInfo)=>updateAthlete(id,{arrived:true,status:"arrived",...(contactInfo||{})})} onAddWalkup={a=>setAthletes(prev=>[...prev,a])} onLogout={()=>setUser(null)} />;
-    return <StationView stationKey={user.station} label={user.label} athletes={athletes} updateMetric={updateMetric} onLogout={()=>setUser(null)} />;
-  }
-
-  // Head Coach view below
-  const totalReg = athletes.filter(a=>!a.hidden).length;
-  const totalAssigned = athletes.filter(a=>a.teamAssignment&&!a.hidden).length;
-  const totalAccepted = athletes.filter(a=>a.status==="accepted"&&!a.hidden).length;
-  const totalHidden = athletes.filter(a=>a.hidden).length;
-  const showAgeNav = ["depth","teams","tryout"].includes(view);
-
-  return (
-    <div style={{fontFamily:"'Inter',-apple-system,sans-serif",background:"#0d1017",color:"#e8eaed",minHeight:"100vh"}}>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-
-      {/* HEADER */}
-      <div style={{background:"linear-gradient(135deg,#0d1017,#1a1d24)",borderBottom:"1px solid #1e222b",padding:"16px 24px"}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
-          <div>
-            <h1 style={{margin:0,fontSize:22,fontWeight:800,letterSpacing:-.5}}>
-              <span style={{color:"#4fc3f7"}}>MID TN</span> <span style={{color:"#78909c"}}>VBC</span> Tryout Manager
-            </h1>
-            <div style={{fontSize:12,color:"#546e7a",marginTop:2}}>Head Coach View | 2026-2027</div>
-          </div>
-          <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
-            {[{l:`${totalReg} Reg`,c:"#4fc3f7"},{l:`${totalAssigned} Assigned`,c:"#66bb6a"},{l:`${totalAccepted} Accepted`,c:"#ab47bc"},{l:`${totalHidden} Hidden`,c:"#ffa726"}].map(s=><Badge key={s.l} color={s.c}>{s.l}</Badge>)}
-            <Btn small onClick={()=>setShowImport(true)} color="#66bb6a">+ Import CSV</Btn>
-            <Btn small onClick={()=>setUser(null)} color="#ef5350" outline>Log Out</Btn>
-          </div>
-        </div>
-        <div style={{display:"flex",gap:6,marginTop:14,flexWrap:"wrap",alignItems:"center"}}>
-          {[{key:"allreg",label:"All Reg"},{key:"depth",label:"Depth Charts"},{key:"tryout",label:"Tryout Results"},{key:"teams",label:"Team Builder"},{key:"allteams",label:"All Teams"},{key:"hidden",label:`Hidden (${totalHidden})`}].map(n=>(
-            <button key={n.key} onClick={()=>setView(n.key)} style={{padding:"7px 16px",borderRadius:6,border:"none",cursor:"pointer",fontSize:13,fontWeight:600,background:view===n.key?"#1565c0":"#1a1d24",color:view===n.key?"#fff":"#78909c"}}>{n.label}</button>
-          ))}
-          <div style={{flex:1}} />
-          {showAgeNav && <div style={{display:"flex",gap:3,background:"#12151c",borderRadius:6,padding:2}}>
-            {AGE_GROUPS.map(ag=><button key={ag} onClick={()=>setActiveAge(ag)} style={{padding:"5px 14px",borderRadius:4,border:"none",cursor:"pointer",fontSize:13,fontWeight:700,background:activeAge===ag?"#4fc3f7":"transparent",color:activeAge===ag?"#0d1017":"#546e7a"}}>{ag}s</button>)}
-          </div>}
-        </div>
-      </div>
-
-      <div style={{padding:"20px 24px"}}>
-        {view === "allreg" && <AllRegView athletes={athletes} onSelect={setSelectedPlayer} onArrive={id => updateAthlete(id, {arrived: true, status: "arrived"})} onAddWalkup={a => setAthletes(prev => [...prev, a])} />}
-        {view === "depth" && <DepthChartView athletes={athletes} activeAge={activeAge} onSelect={setSelectedPlayer} />}
-        {view === "tryout" && <ResultsView athletes={athletes} activeAge={activeAge} onSelect={setSelectedPlayer} updateMetric={updateMetric} />}
-        {view === "teams" && <TeamBuilderView athletes={athletes} activeAge={activeAge} onChange={updateAthlete} onSelect={setSelectedPlayer} onEmail={(a, t) => { setEmailPlayer(a); setEmailTeam(t); }} />}
-        {view === "allteams" && <AllTeamsView athletes={athletes} onSelect={setSelectedPlayer} />}
-        {view === "hidden" && <HiddenView athletes={athletes} onUnhide={unhideAthlete} onSelect={setSelectedPlayer} />}
-      </div>
-
-      <AthleteModal athlete={selectedPlayer} onClose={()=>setSelectedPlayer(null)} onChange={updateAthlete} onHide={setHidePlayer} onUnhide={unhideAthlete} onEmail={setEmailPlayer} />
-      <EmailModal athlete={emailPlayer} team={emailTeam} onClose={()=>{setEmailPlayer(null);setEmailTeam("");}} onSend={handleSendEmail} />
-      <HideModal athlete={hidePlayer} onClose={()=>setHidePlayer(null)} onHide={hideAthlete} />
-      {showImport && <CSVImportModal onClose={()=>setShowImport(false)} onImport={importAthletes} />}
-    </div>
-  );
-}
-
-const container = document.getElementById('root');
-const root = ReactDOM.createRoot(container);
-root.render(<TryoutApp />);
-document.getElementById('loading').style.display = 'none';
-</script>
-</body>
-</html>
         
