@@ -616,18 +616,20 @@
 <script>
   function tick() {
     const n = new Date();
-    document.getElementById('clock').textContent =
-      n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-    document.getElementById('datestr').textContent =
-      n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+    const clockEl = document.getElementById('clock');
+    const dateEl = document.getElementById('datestr');
+    if (clockEl) clockEl.textContent = n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    if (dateEl) dateEl.textContent = n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
   }
   tick(); setInterval(tick, 15000);
 
-  function triggerRipple(e) {
-    const rect = this.getBoundingClientRect();
-    const isKeyboard = (e.clientX === undefined || (e.clientX === 0 && e.clientY === 0));
-    const x = isKeyboard ? rect.width / 2 : e.clientX - rect.left;
-    const y = isKeyboard ? rect.height / 2 : e.clientY - rect.top;
+  /**
+   * Creates a visual ripple effect on an element.
+   * @param {MouseEvent|KeyboardEvent} e - The triggering event.
+   */
+  function createRipple(e) {
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
 
     const r = document.createElement('span');
     r.style.cssText = `position:absolute;border-radius:50%;width:120px;height:120px;
@@ -641,17 +643,28 @@
 
   // Interaction handlers for cards and buttons
   document.querySelectorAll('.app-card, .qbtn').forEach(el => {
-    el.addEventListener('click', triggerRipple);
+    // Primary interaction (Mouse click or Native Enter on links)
+    el.addEventListener('click', createRipple);
+
+    // Keyboard accessibility for non-native button elements (qbtn) and Space bar
     el.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        this.click();
+        // Space should always trigger the element and avoid scrolling
+        if (e.key === ' ') e.preventDefault();
+
+        // If it's a native <a> tag, Enter already works.
+        // If it's a custom role="button", we need to manually trigger click for Enter.
+        if (e.key === ' ' || (e.key === 'Enter' && this.tagName !== 'A')) {
+          if (e.key === 'Enter') e.preventDefault();
+          this.click();
+        }
       }
     });
   });
 
+  // Inject animation keyframes
   const style = document.createElement('style');
-  style.textContent = '@keyframes ripple{to{transform:translate(-50%,-50%) scale(4);opacity:0}}';
+  style.textContent = '@keyframes ripple { to { transform: translate(-50%,-50%) scale(4); opacity: 0; } }';
   document.head.appendChild(style);
 </script>
 </body>
