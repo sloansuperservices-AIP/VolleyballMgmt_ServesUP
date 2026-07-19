@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useRef, useCallback } from "react";
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -351,6 +350,27 @@ function ColumnMapper({ headers, fields, mapping, setMapping }) {
   );
 }
 
+function PreviewRow({ row, index, fields, mapping, isDuplicate, isSelected, onToggle, applyMapping }) {
+  const mapped = applyMapping(row);
+  const dup = isDuplicate(row);
+  return (
+    <tr onClick={()=>onToggle(index)} className={`border-b border-slate-700/20 cursor-pointer transition-colors ${isSelected?"bg-slate-800/40":"opacity-50"} hover:bg-slate-800/60`}>
+      <td className="px-4 py-2.5">
+        <input type="checkbox" checked={isSelected} onChange={()=>onToggle(index)} onClick={e=>e.stopPropagation()} className="accent-amber-500"/>
+      </td>
+      {fields.filter(f=>mapping[f]).map(f=>(
+        <td key={f} className="px-3 py-2.5 text-slate-300 whitespace-nowrap max-w-36 truncate">{mapped[f]||<span className="text-slate-600 italic">—</span>}</td>
+      ))}
+      <td className="px-3 py-2.5">
+        {dup
+          ? <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold">Duplicate</span>
+          : <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold">New</span>
+        }
+      </td>
+    </tr>
+  );
+}
+
 function ImportPanel({ onImportAthletes, onImportJobs, existingAthletes, existingJobs }) {
   const [mode, setMode]           = useState("athletes"); // "athletes" | "jobs"
   const [inputMode, setInputMode] = useState("upload");   // "upload" | "paste"
@@ -628,27 +648,19 @@ function ImportPanel({ onImportAthletes, onImportJobs, existingAthletes, existin
                   </tr>
                 </thead>
                 <tbody>
-                  {parsed.rows.map((row,i)=>{
-                    const mapped = applyMapping(row);
-                    const dup = isDuplicate(row);
-                    const isSelected = selected.includes(i);
-                    return (
-                      <tr key={i} onClick={()=>toggleRow(i)} className={`border-b border-slate-700/20 cursor-pointer transition-colors ${isSelected?"bg-slate-800/40":"opacity-50"} hover:bg-slate-800/60`}>
-                        <td className="px-4 py-2.5">
-                          <input type="checkbox" checked={isSelected} onChange={()=>toggleRow(i)} onClick={e=>e.stopPropagation()} className="accent-amber-500"/>
-                        </td>
-                        {fields.filter(f=>mapping[f]).map(f=>(
-                          <td key={f} className="px-3 py-2.5 text-slate-300 whitespace-nowrap max-w-36 truncate">{mapped[f]||<span className="text-slate-600 italic">—</span>}</td>
-                        ))}
-                        <td className="px-3 py-2.5">
-                          {dup
-                            ? <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold">Duplicate</span>
-                            : <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold">New</span>
-                          }
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {parsed.rows.map((row,i)=>(
+                    <PreviewRow
+                      key={i}
+                      row={row}
+                      index={i}
+                      fields={fields}
+                      mapping={mapping}
+                      isDuplicate={isDuplicate}
+                      isSelected={selected.includes(i)}
+                      onToggle={toggleRow}
+                      applyMapping={applyMapping}
+                    />
+                  ))}
                 </tbody>
               </table>
             </div>
