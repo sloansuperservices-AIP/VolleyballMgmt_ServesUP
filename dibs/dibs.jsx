@@ -330,6 +330,46 @@ function SplashPanel() {
 const ATHLETE_FIELDS = ["name","email","phone","team","tier","age"];
 const JOB_FIELDS     = ["title","category","date","time","duration","credits","spots","location"];
 
+function PreviewRow({ rowIndex, isSelected, isDup, mapped, fields, mapping, toggleRow }) {
+  return (
+    <tr
+      onClick={() => toggleRow(rowIndex)}
+      className={`border-b border-slate-700/20 cursor-pointer transition-colors ${
+        isSelected ? "bg-slate-800/40" : "opacity-50"
+      } hover:bg-slate-800/60`}
+    >
+      <td className="px-4 py-2.5">
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => toggleRow(rowIndex)}
+          onClick={(e) => e.stopPropagation()}
+          className="accent-amber-500"
+        />
+      </td>
+      {fields.filter((f) => mapping[f]).map((f) => (
+        <td
+          key={f}
+          className="px-3 py-2.5 text-slate-300 whitespace-nowrap max-w-36 truncate"
+        >
+          {mapped[f] || <span className="text-slate-600 italic">—</span>}
+        </td>
+      ))}
+      <td className="px-3 py-2.5">
+        {isDup ? (
+          <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold">
+            Duplicate
+          </span>
+        ) : (
+          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold">
+            New
+          </span>
+        )}
+      </td>
+    </tr>
+  );
+}
+
 function ColumnMapper({ headers, fields, mapping, setMapping }) {
   return (
     <div className="grid gap-2">
@@ -633,20 +673,16 @@ function ImportPanel({ onImportAthletes, onImportJobs, existingAthletes, existin
                     const dup = isDuplicate(row);
                     const isSelected = selected.includes(i);
                     return (
-                      <tr key={i} onClick={()=>toggleRow(i)} className={`border-b border-slate-700/20 cursor-pointer transition-colors ${isSelected?"bg-slate-800/40":"opacity-50"} hover:bg-slate-800/60`}>
-                        <td className="px-4 py-2.5">
-                          <input type="checkbox" checked={isSelected} onChange={()=>toggleRow(i)} onClick={e=>e.stopPropagation()} className="accent-amber-500"/>
-                        </td>
-                        {fields.filter(f=>mapping[f]).map(f=>(
-                          <td key={f} className="px-3 py-2.5 text-slate-300 whitespace-nowrap max-w-36 truncate">{mapped[f]||<span className="text-slate-600 italic">—</span>}</td>
-                        ))}
-                        <td className="px-3 py-2.5">
-                          {dup
-                            ? <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold">Duplicate</span>
-                            : <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold">New</span>
-                          }
-                        </td>
-                      </tr>
+                      <PreviewRow
+                        key={i}
+                        rowIndex={i}
+                        isSelected={isSelected}
+                        isDup={dup}
+                        mapped={mapped}
+                        fields={fields}
+                        mapping={mapping}
+                        toggleRow={toggleRow}
+                      />
                     );
                   })}
                 </tbody>
