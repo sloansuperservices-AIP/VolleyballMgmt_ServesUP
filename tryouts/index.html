@@ -462,6 +462,33 @@ function StationView({stationKey,label,athletes,updateMetric,onLogout}){
   );
 }
 
+function AthleteStationMetricsRow({ station, athlete, locked, onChange }) {
+  const vs = (athlete.metrics && athlete.metrics[station.key]) || station.metrics.map(() => "");
+  const av = stationAvg(athlete.metrics, station.key);
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ fontSize: 11, color: "#78909c", fontWeight: 600, marginBottom: 6, display: "flex", justifyContent: "space-between" }}>
+        <span>{station.label}</span>
+        {av !== null && <span style={{ color: "#66bb6a" }}>Avg: {av.toFixed(1)}</span>}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${station.metrics.length},1fr)`, gap: 8 }}>
+        {station.metrics.map((lbl, idx) => (
+          <div key={idx}>
+            <div style={{ fontSize: 10, color: "#546e7a", marginBottom: 2 }}>{lbl}</div>
+            <input type="number" value={vs[idx] || ""} disabled={locked}
+              onChange={e => {
+                const nv = [...vs];
+                nv[idx] = e.target.value;
+                onChange(athlete.id, { metrics: { ...athlete.metrics, [station.key]: nv } });
+              }}
+              style={{ width: "100%", padding: "5px", background: "#12151c", border: "1px solid #2a2e38", borderRadius: 4, color: "#e8eaed", fontSize: 13, textAlign: "center" }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── ATHLETE DETAIL MODAL ─────────────────────────────────────────────
 function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
   if(!athlete) return null;
@@ -561,28 +588,15 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
         {/* Metrics */}
         <div style={{borderTop:"1px solid #2a2e38",paddingTop:16,marginBottom:16}}>
           <div style={{fontSize:13,fontWeight:700,color:"#4fc3f7",marginBottom:10}}>Tryout Scores</div>
-          {STATIONS.filter(s=>!s.isCheckin).map(station=>{
-            const vs=(athlete.metrics&&athlete.metrics[station.key])||station.metrics.map(()=>"");
-            const av=stationAvg(athlete.metrics,station.key);
-            return(
-              <div key={station.key} style={{marginBottom:12}}>
-                <div style={{fontSize:11,color:"#78909c",fontWeight:600,marginBottom:6,display:"flex",justifyContent:"space-between"}}>
-                  <span>{station.label}</span>
-                  {av!==null&&<span style={{color:"#66bb6a"}}>Avg: {av.toFixed(1)}</span>}
-                </div>
-                <div style={{display:"grid",gridTemplateColumns:`repeat(${station.metrics.length},1fr)`,gap:8}}>
-                  {station.metrics.map((lbl,idx)=>(
-                    <div key={idx}>
-                      <div style={{fontSize:10,color:"#546e7a",marginBottom:2}}>{lbl}</div>
-                      <input type="number" value={vs[idx]||""} disabled={locked}
-                        onChange={e=>{const nv=[...vs];nv[idx]=e.target.value;onChange(athlete.id,{metrics:{...athlete.metrics,[station.key]:nv}});}}
-                        style={{width:"100%",padding:"5px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:4,color:"#e8eaed",fontSize:13,textAlign:"center"}}/>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+          {STATIONS.filter(s=>!s.isCheckin).map(station=>(
+            <AthleteStationMetricsRow
+              key={station.key}
+              station={station}
+              athlete={athlete}
+              locked={locked}
+              onChange={onChange}
+            />
+          ))}
           {sc&&<div style={{textAlign:"right",fontWeight:800,fontSize:15,color:"#66bb6a"}}>Total Score: {sc}</div>}
         </div>
 

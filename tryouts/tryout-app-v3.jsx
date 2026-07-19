@@ -377,6 +377,33 @@ function CSVImportModal({onClose, onImport}) {
   );
 }
 
+function StationMetricsRow({ station, athlete, canEditAll, onMetricChange }) {
+  const vals = (athlete.metrics && athlete.metrics[station.key]) || ["", "", ""];
+  const avg = getStationAvg(athlete.metrics, station.key);
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ fontSize: 11, color: "#78909c", fontWeight: 600, marginBottom: 4, display: "flex", justifyContent: "space-between" }}>
+        <span>{station.label}</span>
+        {avg !== null && <span style={{ color: "#66bb6a" }}>Avg: {avg.toFixed(1)}</span>}
+      </div>
+      <div style={{ display: "flex", gap: 8 }}>
+        {station.metrics.map((label, idx) => (
+          <div key={idx} style={{ flex: 1 }}>
+            <div style={{ fontSize: 10, color: "#546e7a", marginBottom: 2 }}>{label}</div>
+            <input type="number" value={vals[idx] || ""} disabled={!canEditAll}
+              onChange={e => {
+                const nv = [...vals];
+                nv[idx] = e.target.value;
+                onMetricChange(athlete.id, station.key, nv);
+              }}
+              style={{ width: "100%", padding: "5px 8px", background: canEditAll ? "#12151c" : "#0d1017", border: "1px solid #2a2e38", borderRadius: 4, color: canEditAll ? "#e8eaed" : "#666", fontSize: 13, boxSizing: "border-box" }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function PlayerDetail({athlete, onClose, onStatusChange, onCoachPos, onEmail, onHide, onUnhide, onMetricChange, canEditAll}) {
   if (!athlete) return null;
   const statuses = ["pending","contacted","offered","accepted","declined","info_requested"];
@@ -425,28 +452,15 @@ function PlayerDetail({athlete, onClose, onStatusChange, onCoachPos, onEmail, on
         {/* Tryout Metrics */}
         <div style={{borderTop:"1px solid #2a2e38",paddingTop:16,marginBottom:16}}>
           <div style={{fontSize:13,fontWeight:700,color:"#4fc3f7",marginBottom:10}}>Tryout Metrics</div>
-          {STATIONS.map(station => {
-            const vals = (athlete.metrics && athlete.metrics[station.key]) || ["","",""];
-            const avg = getStationAvg(athlete.metrics, station.key);
-            return (
-              <div key={station.key} style={{marginBottom:10}}>
-                <div style={{fontSize:11,color:"#78909c",fontWeight:600,marginBottom:4,display:"flex",justifyContent:"space-between"}}>
-                  <span>{station.label}</span>
-                  {avg !== null && <span style={{color:"#66bb6a"}}>Avg: {avg.toFixed(1)}</span>}
-                </div>
-                <div style={{display:"flex",gap:8}}>
-                  {station.metrics.map((label, idx) => (
-                    <div key={idx} style={{flex:1}}>
-                      <div style={{fontSize:10,color:"#546e7a",marginBottom:2}}>{label}</div>
-                      <input type="number" value={vals[idx]||""} disabled={!canEditAll}
-                        onChange={e=>{const nv=[...vals];nv[idx]=e.target.value;onMetricChange(athlete.id,station.key,nv);}}
-                        style={{width:"100%",padding:"5px 8px",background:canEditAll?"#12151c":"#0d1017",border:"1px solid #2a2e38",borderRadius:4,color:canEditAll?"#e8eaed":"#666",fontSize:13,boxSizing:"border-box"}} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+          {STATIONS.map(station => (
+            <StationMetricsRow
+              key={station.key}
+              station={station}
+              athlete={athlete}
+              canEditAll={canEditAll}
+              onMetricChange={onMetricChange}
+            />
+          ))}
           {score && <div style={{textAlign:"right",fontSize:14,fontWeight:700,color:"#66bb6a",marginTop:4}}>Total Score: {score}</div>}
         </div>
         <div style={{display:"flex",gap:10}}>
