@@ -649,6 +649,21 @@ function PlayerCard({athlete,onClick,compact,showScore,teamKey}){
 }
 
 // ── RESULTS TABLE ───────────────────────────────────────────────────
+function MetricInputCell({ athlete, station, idx, updateMetric, td }) {
+  const vs = (athlete.metrics && athlete.metrics[station.key]) || [];
+  return (
+    <td key={station.key+idx} style={td}>
+      <input type="number" value={vs[idx]||""} onClick={e=>e.stopPropagation()}
+        onChange={e=>{
+          const nv=[...(athlete.metrics?.[station.key] || station.metrics.map(()=>""))];
+          nv[idx]=e.target.value;
+          updateMetric(athlete.id,station.key,nv);
+        }}
+        style={{width:52,padding:"3px 4px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:4,color:"#e8eaed",fontSize:12,textAlign:"center"}}/>
+    </td>
+  );
+}
+
 function ResultsView({athletes,activeAge,onSelect,updateMetric}){
   const [sort,setSort]=useState("score");
   const list=useMemo(()=>{
@@ -687,14 +702,9 @@ function ResultsView({athletes,activeAge,onSelect,updateMetric}){
                 <td style={{...td,fontWeight:600}}>{a.first} {a.last}{a.isWalkup&&<span style={{marginLeft:6,fontSize:10,color:"#ffa726"}}>WU</span>}</td>
                 <td style={td}><Badge c="#78909c" sm>{posAbbr(a.primaryPos)}</Badge></td>
                 <td style={td}><Badge c="#546e7a" sm>{posAbbr(a.altPos)}</Badge></td>
-                {STATIONS.filter(s=>!s.isCheckin).map(station=>station.metrics.map((m,idx)=>{
-                  const vs=(a.metrics&&a.metrics[station.key])||[];
-                  return<td key={station.key+idx} style={td}>
-                    <input type="number" value={vs[idx]||""} onClick={e=>e.stopPropagation()}
-                      onChange={e=>{const nv=[...(a.metrics?.[station.key]||station.metrics.map(()=>""))];nv[idx]=e.target.value;updateMetric(a.id,station.key,nv);}}
-                      style={{width:52,padding:"3px 4px",background:"#12151c",border:"1px solid #2a2e38",borderRadius:4,color:"#e8eaed",fontSize:12,textAlign:"center"}}/>
-                  </td>;
-                }))}
+                {STATIONS.filter(s=>!s.isCheckin).map(station=>station.metrics.map((m,idx)=>(
+                  <MetricInputCell key={station.key+idx} athlete={a} station={station} idx={idx} updateMetric={updateMetric} td={td} />
+                )))}
                 {STATIONS.filter(s=>!s.isCheckin).map(s=>{const av=stationAvg(a.metrics,s.key);return<td key={s.key+"a"} style={{...td,color:"#ffa726",fontWeight:700,fontFamily:"monospace"}}>{av!==null?av.toFixed(1):"—"}</td>;})}
                 <td style={{...td,fontWeight:800,fontFamily:"monospace"}}>
                   {sc?<span style={{color:Number(sc)>=7?"#66bb6a":Number(sc)>=5?"#ffa726":"#ef5350"}}>{sc}</span>:<span style={{color:"#333"}}>—</span>}
